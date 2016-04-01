@@ -28,6 +28,7 @@ gulp.task('browser-sync', function () {
 // Watch for file changes
 gulp.task('watch', function () {
     gulp.watch("*.html").on('change', browserSync.reload);
+    gulp.watch("clients/*.html").on('change', browserSync.reload);
 });
 
 //gulp.task('default', ['concatScripts', 'less', 'html', 'php', 'browser-sync', 'watch']);
