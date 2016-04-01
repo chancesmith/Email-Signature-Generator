@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--                       _                                      
+ _| _ _. _  _  __ |_.(_. _   _ _  _ . _  _ _ _. _  _   |_    
+(_|(-_)|(_)| )    |_|| |(_  (-| )(_)|| )(-(-| || )(_)  |_)\/ 
+        _/                       _/               _/      /  
+ ____            _ _                 _   _       _                        
+/ ___|  ___   __| (_)_   _ _ __ ___ | | | | __ _| | ___   __ _  ___ _ __  
+\___ \ / _ \ / _` | | | | | '_ ` _ \| |_| |/ _` | |/ _ \ / _` |/ _ \ '_ \ 
+ ___) | (_) | (_| | | |_| | | | | | |  _  | (_| | | (_) | (_| |  __/ | | |
+|____/ \___/ \__,_|_|\__,_|_| |_| |_|_| |_|\__,_|_|\___/ \__, |\___|_| |_|.net
+                                                         |___/           
+ -->
+
+  <!-- Standard Meta -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  
+  <!-- COpy to clipboard -->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
+    <script src="ZeroClipboard.min.js"></script>
+ 
+  
+
+  <!-- Site Properities -->
+  <title>SH Email Signature Creator</title>
+
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" type="text/css" href="packaged/css/semantic.css">
+  <link rel="stylesheet" type="text/css" href="homepage.css">
+
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
+  <script src="packaged/javascript/semantic.js"></script>
+  <script src="homepage.js"></script>
+
+</head>
+<body id="home">
+  
+    <div class="column">
+      <br>
+        <h1 class="ui center aligned header">
+          Build your CLIENT NAME email signature.
+        </h1>
+      <h2 class="ui center aligned header">
+        Sodium Halogen &copy;<script>document.write(new Date().getFullYear())</script>
+      </h2>
+    </div>
+  </div>
+  <div class="ui page grid overview segment">
+    <div class="ui two wide column"></div>
+    <div class="twelve wide column">
+      <div class="ui two column aligned stackable divided grid">
+        <div class="column">
+          <h1>Awesome Signature Creator</h1>
+          <p>Please input into these fields</p>
+          <div class="ui form left">
+            <div class="field">
+              <label>First Name</label>
+              <input id="first" type="text" placeholder="John">
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <input id="last" type="text" placeholder="Smith">
+            </div>
+            <div class="field">
+              <label>Credentials</label>
+              <input id="creds" type="text" placeholder="IIDA">
+            </div>
+            <div class="field">
+              <label>Position/Title</label>
+              <input id="title" type="text" placeholder="Director of Awesomeness">
+            </div>
+          </div>
+
+          <button type="button" id="clip_button" class="ui button" onclick="myFunction()">Build My Signature</button>
+        </div>
+        <div class="column">
+          <div id="demo" class="left"></div>
+          <div id="directions" class="left"><br><br><h2>Scroll Down to copy HTML to clipboard.</h2></div>
+          <br>
+        </div>
+      </div>
+
+      <center>
+        <button id="copy-button" class="ui teal button center" type="button" onclick="clickCopyButton()" data-clipboard-target="inputId" >
+            Copy HTML version to clipboard!
+        </button>
+      </center>
+
+    </div>
+  </div>
+
+<input type="text" id="inputId" value="this would be really nice to copy"/>
+
+<script>
+var email = 0;
+
+    $(document).ready(function() {
+        var client = new ZeroClipboard($('#copy-button'), {
+            moviePath : 'util/ZeroClipboard.swf'
+        });
+    });
+
+    $( ".copy-me" ).hide();
+    $( "#directions" ).hide();
+    $( "#copy-button" ).hide();
+    $( "#inputId" ).hide();
+
+    function myFunction() {
+        $( "#copy-button" ).show();
+        $( ".copy-me" ).show();
+        $( "#directions" ).show();
+    //Get the value of input field with id="numb"
+    var first = document.getElementById("first").value;
+    var last = document.getElementById("last").value;
+    var creds = document.getElementById("creds").value;
+    var title = document.getElementById("title").value;
+
+    var emailSig1 = '<meta name="format-detection" content="telephone=no"><table width="320" id="sig" cellspacing="0" cellpadding="0" border-spacing="0" style="margin:0;padding:0;font-family:helvetica,arial,sans-serif;"><tr><td style="margin:0;padding:0;white-space:nowrap;"><b><span style="font-size:11.0pt;color:#00AEEA;">';
+    var emailSig2 =  '</span></b><span style="font-size:11.0pt;color:#919191;">, ';
+    var emailSig22 = '</span></td></tr><tr><td style="margin:0;padding:0 0 0 0;white-space:nowrap;"><span style="font-size:10.0pt;color:#919191;">';
+    var emailSig3 = '</span></td></tr></table><br><table width="320" id="sig" cellspacing="0" cellpadding="0" border-spacing="0" style="margin:0;padding:0;"><tr><td width="100" style="width:86px;margin:0;padding:3px 0 0 0;border-right:2px solid #919191;padding-right:9px;"><a href="http://www.tlmae.com/"><img border="0" width="104" height="70" src="http://www.tlmae.com/signature/logo-sig3.jpg" alt="TLM LOGO"></a></td><td width="10" style="width:10px;">&nbsp;</td><td valign="top" style="margin:0;padding:0;"><table id="sig2" cellspacing="0" cellpadding="0" border-spacing="0" style="border:none;text-decoration:none;padding:0;margin:0;font-family:helvetica,arial,sans-serif;font-size:12px;color:#b0b0b0;border-collapse:collapse;-webkit-text-size-adjust:none;"><tr style="margin:0;padding:0;"><td style="margin:0;padding:0;font-family:helvetica,arial,sans-serif;white-space:nowrap;"><span style="font-size:10.0pt;color:#919191;">117 E. Lafayette Street <br/>Jackson, TN 38301</span></td></tr><tr style="margin:0;padding:0;color:#b0a49b;"><td style="margin:0;padding:0;white-space:nowrap;"><span style="font-size:10.0pt;color:#00AEEA;">P&nbsp;</span><a href="tel:731.988.9840" target="_blank" style="border:none;text-decoration:none;"><span style="border:none;font-size:10.0pt;color:#919191;text-decoration:none;">731.988.9840</a></td></tr><tr style="margin:0;padding:0;color:#b0a49b;"><td style="margin:0;padding:0;white-space:nowrap;"><span style="font-size:10.0pt;color:#00AEEA;">F&nbsp;</span><a href="tel:731.988.9959" target="_blank" style="border:none;text-decoration:none;"><span style="border:none;font-size:10.0pt;color:#919191;text-decoration:none;">731.988.9959</a></td></tr><tr style="margin:0;padding:0;color:#b0a49b;"><td style="margin:0;padding:0;white-space:nowrap;"><a href="http://www.tlmae.com/" target="_blank" style="border:none;text-decoration:none;"><span style="font-size:10.0pt;color:#919191;text-decoration:none;">www.tlmae.com</span></a></span></td></tr></table></td></tr></table>';
+    var emailSig9 = '<br><table width="320" id="sig" cellspacing="0" cellpadding="0" border-spacing="0" style="margin:0;padding:0;font-family:helvetica,arial,sans-serif;color:#919191;"><tbody><tr><td style="margin:0;padding:0;font-size:10.0pt;color:#919191;white-space:nowrap;"><img border="0" width="49" height="56" src="http://www.tlmae.com/signature/celebrating-50years.jpg" alt="TLM twitter account"></td><td width="10" style="width:5px;">&nbsp;</td><td valign="top" style="margin:0;padding:0;"><table id="sig2" cellspacing="0" cellpadding="0" border-spacing="0" style="border:none;text-decoration:none;padding:0;margin:0;font-family:helvetica,arial,sans-serif;font-size:12px;color:#b0b0b0;border-collapse:collapse;-webkit-text-size-adjust:none;"><tr><td style="margin:0;padding:0;font-size:10.0pt;color:#919191;white-space:nowrap;"><span style="font-size:8.0pt;padding-bottom:12px;">Connect with us:</span><br><a href="https://twitter.com/tlmassociates"><img border="0" width="32" height="32" style="padding-top:7px;" src="http://www.tlmae.com/signature/twt-logo-2.png" alt="TLM twitter account"></a></td></tr></table></td></tr></tbody></table>';
+
+
+    var email = emailSig1 + first + ' ' + last + emailSig2 + creds + emailSig22 + title + emailSig3 + emailSig9;
+
+    document.getElementById("demo").innerHTML=email;
+        document.getElementById("clip_button").innerHTML = "Great job! Again?";
+
+        var text = $('#inputId');
+        text.val(email); 
+
+    }
+
+    function clickCopyButton() {
+        var client = new ZeroClipboard($('#copy-button'), {
+            moviePath : 'util/ZeroClipboard.swf'
+        });
+        client.on('dataRequested', function(client, args){
+             client.setText(email);
+             document.getElementById("copy-button").innerHTML = "HTML Copied! Copy again?";
+        });
+        document.getElementById("copy-button").innerHTML = "HTML Copied! Copy again?";
+    }
+
+</script>
+
+</body>
+
+</html>

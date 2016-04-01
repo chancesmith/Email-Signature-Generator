@@ -1,0 +1,30 @@
+{
+  "name": "allygn",
+  "version": "1.0.0",
+  "description": "allygn new static site",
+  "main": "index.html",
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "",
+    "url": "https://chancesmith@bitbucket.org/teamsodiumhalogen/allygn.git"
+  },
+  "keywords": [
+    "gulp",
+    "scss",
+    "js",
+    "images"
+  ],
+  "author": "Joe Richardson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dope/gulp-starter/issues"
+  },
+  "homepage": "https://github.com/dope/gulp-starter",
+  "devDependencies": {
+    "browser-sync": "^2.8.2",
+    "gulp": "^3.9.0",
+    "gulp-plumber": "^0.6.6"
+  }
+}
