@@ -1,28 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-<!--                       _                                      
- _| _ _. _  _  __ |_.(_. _   _ _  _ . _  _ _ _. _  _   |_    
-(_|(-_)|(_)| )    |_|| |(_  (-| )(_)|| )(-(-| || )(_)  |_)\/ 
-        _/                       _/               _/      /  
- ____            _ _                 _   _       _                        
-/ ___|  ___   __| (_)_   _ _ __ ___ | | | | __ _| | ___   __ _  ___ _ __  
-\___ \ / _ \ / _` | | | | | '_ ` _ \| |_| |/ _` | |/ _ \ / _` |/ _ \ '_ \ 
+<!--                       _
+ _| _ _. _  _  __ |_.(_. _   _ _  _ . _  _ _ _. _  _   |_
+(_|(-_)|(_)| )    |_|| |(_  (-| )(_)|| )(-(-| || )(_)  |_)\/
+        _/                       _/               _/      /
+ ____            _ _                 _   _       _
+/ ___|  ___   __| (_)_   _ _ __ ___ | | | | __ _| | ___   __ _  ___ _ __
+\___ \ / _ \ / _` | | | | | '_ ` _ \| |_| |/ _` | |/ _ \ / _` |/ _ \ '_ \
  ___) | (_) | (_| | | |_| | | | | | |  _  | (_| | | (_) | (_| |  __/ | | |
 |____/ \___/ \__,_|_|\__,_|_| |_| |_|_| |_|\__,_|_|\___/ \__, |\___|_| |_|.net
-                                                         |___/           
+                                                         |___/
  -->
 
   <!-- Standard Meta -->
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  
+
   <!-- COpy to clipboard -->
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
-    <script src="ZeroClipboard.min.js"></script>
- 
-  
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
+  <script src="ZeroClipboard.min.js"></script>
 
   <!-- Site Properities -->
   <title>SH Email Signature Creator</title>
@@ -38,60 +36,60 @@
 
 </head>
 <body id="home">
-  
-    <div class="column">
-      <br>
-        <h1 class="ui center aligned header">
-          Build your CLIENT NAME email signature.
-        </h1>
-      <h2 class="ui center aligned header">
-        Sodium Halogen &copy;<script>document.write(new Date().getFullYear())</script>
-      </h2>
-    </div>
-  </div>
-  <div class="ui page grid overview segment">
-    <div class="ui two wide column"></div>
-    <div class="twelve wide column">
-      <div class="ui two column aligned stackable divided grid">
-        <div class="column">
-          <h1>Awesome Signature Creator</h1>
-          <p>Please input into these fields</p>
-          <div class="ui form left">
-            <div class="field">
-              <label>First Name</label>
-              <input id="first" type="text" placeholder="John">
-            </div>
-            <div class="field">
-              <label>Last Name</label>
-              <input id="last" type="text" placeholder="Smith">
-            </div>
-            <div class="field">
-              <label>Credentials</label>
-              <input id="creds" type="text" placeholder="IIDA">
-            </div>
-            <div class="field">
-              <label>Position/Title</label>
-              <input id="title" type="text" placeholder="Director of Awesomeness">
-            </div>
+
+<div class="column">
+  <br>
+    <h1 class="ui center aligned header">
+      Build your CLIENT NAME email signature.
+    </h1>
+  <h2 class="ui center aligned header">
+    Sodium Halogen &copy;<script>document.write(new Date().getFullYear())</script>
+  </h2>
+</div>
+<div class="ui page grid overview segment">
+  <div class="ui two wide column"></div>
+  <div class="twelve wide column">
+    <div class="ui two column aligned stackable divided grid">
+      <div class="column">
+        <h1>Awesome Signature Creator</h1>
+        <p>Please input into these fields</p>
+        <div class="ui form left">
+          <div class="field">
+            <label>First Name</label>
+            <input id="first" type="text" placeholder="John">
           </div>
+          <div class="field">
+            <label>Last Name</label>
+            <input id="last" type="text" placeholder="Smith">
+          </div>
+          <div class="field">
+            <label>Credentials</label>
+            <input id="creds" type="text" placeholder="IIDA">
+          </div>
+          <div class="field">
+            <label>Position/Title</label>
+            <input id="title" type="text" placeholder="Director of Awesomeness">
+          </div>
+        </div>
 
-          <button type="button" id="clip_button" class="ui button" onclick="myFunction()">Build My Signature</button>
-        </div>
-        <div class="column">
-          <div id="demo" class="left"></div>
-          <div id="directions" class="left"><br><br><h2>Scroll Down to copy HTML to clipboard.</h2></div>
-          <br>
-        </div>
+        <button type="button" id="clip_button" class="ui button" onclick="buidSignature()">Build My Signature</button>
       </div>
-
-      <center>
-        <button id="copy-button" class="ui teal button center" type="button" onclick="clickCopyButton()" data-clipboard-target="inputId" >
-            Copy HTML version to clipboard!
-        </button>
-      </center>
-
+      <div class="column">
+        <div id="demo" class="left"></div>
+        <div id="directions" class="left" style="display: none;"><br><br><h2>Scroll Down to copy HTML to clipboard.</h2></div>
+        <br>
+      </div>
     </div>
+
+    <center>
+      <button id="copy-button" class="ui teal button center" type="button" onclick="clickCopyButton()" data-clipboard-target="inputId" style="display: none;">
+          Copy HTML version to clipboard!
+      </button>
+      <a id="download-file-button" class="ui orange button center" type="button" href="#" style="display: none;">Download HTML File</a>
+    </center>
+
   </div>
+</div>
 
 <input type="text" id="inputId" value="this would be really nice to copy"/>
 
@@ -106,21 +104,23 @@ $(document).ready(function() {
 
 function showControls(flag){
   if(flag){
-    $( "#copy-button" ).show();
     $( ".copy-me" ).show();
     $( "#directions" ).show();
+    $( "#copy-button" ).show();
+    $( "#download-file-button" ).show();
   }
   else {
     $( ".copy-me" ).hide();
     $( "#directions" ).hide();
     $( "#copy-button" ).hide();
+    $( "#download-file-button" ).hide();
     $( "#inputId" ).hide();
   }
 }
 
 showControls(false);
 
-function myFunction() {
+function buidSignature() {
   showControls(true);
 
   //Get the value of input field with id="numb"
@@ -145,19 +145,30 @@ function myFunction() {
   document.getElementById("clip_button").innerHTML = "Great job! Again?";
 
   var text = $('#inputId');
-  text.val(email); 
+  text.val(email);
 
+  // add HTML to file link
+  var fileName = 'ATA_' + first + '.html';
+  addSignatureToFile(fileName, email);
 }
 
 function clickCopyButton() {
-    var client = new ZeroClipboard($('#copy-button'), {
-        moviePath : 'util/ZeroClipboard.swf'
-    });
-    client.on('dataRequested', function(client, args){
-         client.setText(email);
-         document.getElementById("copy-button").innerHTML = "HTML Copied! Copy again?";
-    });
-    document.getElementById("copy-button").innerHTML = "HTML Copied! Copy again?";
+  // adds HTML to user's clipboard
+  var client = new ZeroClipboard($('#copy-button'), {
+      moviePath : 'util/ZeroClipboard.swf'
+  });
+  client.on('dataRequested', function(client, args){
+       client.setText(email);
+       document.getElementById("copy-button").innerHTML = "HTML Copied! Copy again?";
+  });
+  document.getElementById("copy-button").innerHTML = "HTML Copied! Copy again?";
+}
+
+function addSignatureToFile(filename, emailSig) {
+  // stores HTML into link for file downloading
+  var $element = $('a#download-file-button');
+  $element.attr('href','data:text/html; charset=utf-8,' + encodeURIComponent(emailSig));
+  $element.attr('download', filename);
 }
 
 </script>
