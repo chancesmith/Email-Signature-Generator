@@ -26,5 +26,8 @@
     "browser-sync": "^2.8.2",
     "gulp": "^3.9.0",
     "gulp-plumber": "^0.6.6"
+  },
+  "dependencies": {
+    "semantic-ui": "^2.2.6"
   }
 }
