@@ -6,5 +6,6 @@ Uses ZeroClipboard for copying the HTML render to the user's clipboard.
 ##Dev setup
 - npm install
 - gulp
-- start by editing the code.html to design the email signature
-- copy and divide the code.html into the variables of the javascript inside index.html
+- start by editing the `code.html` to design the email signature
+- copy and divide the `code.html` into the variables of the javascript inside `variables.js`
+- in variables.js look for `***` for areas to edit
