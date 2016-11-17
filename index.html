@@ -30,17 +30,13 @@
   <link rel="stylesheet" type="text/css" href="packaged/css/semantic.css">
   <link rel="stylesheet" type="text/css" href="homepage.css">
 
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
-  <script src="packaged/javascript/semantic.js"></script>
-  <script src="homepage.js"></script>
-
 </head>
 <body id="home">
 
 <div class="column">
   <br>
     <h1 class="ui center aligned header">
-      Build your CLIENT NAME email signature.
+      Build your <span id="company-name"></span> email signature.
     </h1>
   <h2 class="ui center aligned header">
     Sodium Halogen &copy;<script>document.write(new Date().getFullYear())</script>
@@ -55,7 +51,7 @@
         <p>Please input into these fields</p>
         <div class="ui form left">
           <div class="field">
-            <label>First Name</label>
+            <label>First Name*</label>
             <input id="first" type="text" placeholder="John">
           </div>
           <div class="field">
@@ -82,7 +78,7 @@
     </div>
 
     <center>
-      <button id="copy-button" class="ui teal button center" type="button" onclick="clickCopyButton()" data-clipboard-target="inputId" style="display: none;">
+      <button id="copy-button" class="ui teal button center" type="button" onclick="copyToClipboard()" data-clipboard-target="zc-input" style="display: none;">
           Copy HTML version to clipboard!
       </button>
       <a id="download-file-button" class="ui orange button center" type="button" href="#" style="display: none;">Download HTML File</a>
@@ -91,46 +87,43 @@
   </div>
 </div>
 
-<input type="text" id="inputId" value="this would be really nice to copy"/>
+<!-- update hidden input for ZeroClipboard -->
+<input type="text" id="zc-input" value="this would be really nice to copy" style="display: none;" />
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
+<script src="packaged/javascript/semantic.js"></script>
+<script src="main.js"></script>
 
 <script>
-var email = 0;
+//// Global vars
+// setup vars ***
+var companyName = 'Dromygosh Agency';
+var companyInitals = 'DMG';
+// defaults
+var first = '';
+var signature = '';
 
 $(document).ready(function() {
-    var client = new ZeroClipboard($('#copy-button'), {
-        moviePath : 'util/ZeroClipboard.swf'
-    });
+  // update company name
+  $('#company-name').text(companyName);
+
+  // setup ZeroClipboard
+  var client = new ZeroClipboard($('#copy-button'), {
+      moviePath : 'util/ZeroClipboard.swf'
+  });
 });
-
-function showControls(flag){
-  if(flag){
-    $( ".copy-me" ).show();
-    $( "#directions" ).show();
-    $( "#copy-button" ).show();
-    $( "#download-file-button" ).show();
-  }
-  else {
-    $( ".copy-me" ).hide();
-    $( "#directions" ).hide();
-    $( "#copy-button" ).hide();
-    $( "#download-file-button" ).hide();
-    $( "#inputId" ).hide();
-  }
-}
-
-showControls(false);
 
 function buidSignature() {
   showControls(true);
 
-  //Get the value of input field with id="numb"
-  var first = document.getElementById("first").value;
+  //Get the value of input field with id="INPUT-FIELD-ID"
+  first = document.getElementById("first").value;
   var last = document.getElementById("last").value;
   var creds = document.getElementById("creds").value;
   if(creds !== '') creds = ', ' + creds;
   var title = document.getElementById("title").value;
 
-  // divided signature
+  // divided signature **
   var emailSig1 = '<meta name="format-detection" content="telephone=no"><table width="320" id="sig" cellspacing="0" cellpadding="0" border-spacing="0" style="margin:0;padding:0;font-family:helvetica,arial,sans-serif;"><tr><td style="margin:0;padding:0;white-space:nowrap;"><b><span style="font-size:11.0pt;color:#00AEEA;">';
   var emailSig2 =  '</span></b><span style="font-size:11.0pt;color:#919191;">';
   var emailSig3 = '</span></td></tr><tr><td style="margin:0;padding:0 0 0 0;white-space:nowrap;"><span style="font-size:10.0pt;color:#919191;">';
@@ -138,37 +131,10 @@ function buidSignature() {
   var emailSig5 = '<br><table width="320" id="sig" cellspacing="0" cellpadding="0" border-spacing="0" style="margin:0;padding:0;font-family:helvetica,arial,sans-serif;color:#919191;"><tbody><tr><td style="margin:0;padding:0;font-size:10.0pt;color:#919191;white-space:nowrap;"><img border="0" width="49" height="56" src="http://www.tlmae.com/signature/celebrating-50years.jpg" alt="TLM twitter account"></td><td width="10" style="width:5px;">&nbsp;</td><td valign="top" style="margin:0;padding:0;"><table id="sig2" cellspacing="0" cellpadding="0" border-spacing="0" style="border:none;text-decoration:none;padding:0;margin:0;font-family:helvetica,arial,sans-serif;font-size:12px;color:#b0b0b0;border-collapse:collapse;-webkit-text-size-adjust:none;"><tr><td style="margin:0;padding:0;font-size:10.0pt;color:#919191;white-space:nowrap;"><span style="font-size:8.0pt;padding-bottom:12px;">Connect with us:</span><br><a href="https://twitter.com/tlmassociates"><img border="0" width="32" height="32" style="padding-top:7px;" src="http://www.tlmae.com/signature/twt-logo-2.png" alt="TLM twitter account"></a></td></tr></table></td></tr></tbody></table>';
 
   // concat parts of signature together
-  var email = emailSig1 + first + ' ' + last + emailSig2 + creds + emailSig3 + title + emailSig4 + emailSig5;
+  signature = emailSig1 + first + ' ' + last + emailSig2 + creds + emailSig3 + title + emailSig4 + emailSig5;
 
-  // show user the the results
-  document.getElementById("demo").innerHTML=email;
-  document.getElementById("clip_button").innerHTML = "Great job! Again?";
-
-  var text = $('#inputId');
-  text.val(email);
-
-  // add HTML to file link
-  var fileName = 'ATA_' + first + '.html';
-  addSignatureToFile(fileName, email);
-}
-
-function clickCopyButton() {
-  // adds HTML to user's clipboard
-  var client = new ZeroClipboard($('#copy-button'), {
-      moviePath : 'util/ZeroClipboard.swf'
-  });
-  client.on('dataRequested', function(client, args){
-       client.setText(email);
-       document.getElementById("copy-button").innerHTML = "HTML Copied! Copy again?";
-  });
-  document.getElementById("copy-button").innerHTML = "HTML Copied! Copy again?";
-}
-
-function addSignatureToFile(filename, emailSig) {
-  // stores HTML into link for file downloading
-  var $element = $('a#download-file-button');
-  $element.attr('href','data:text/html; charset=utf-8,' + encodeURIComponent(emailSig));
-  $element.attr('download', filename);
+  // show the results
+  presentSignature();
 }
 
 </script>
