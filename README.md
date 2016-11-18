@@ -3,6 +3,8 @@ We design email signatures at SodiumHalogen.com, this snippet helps our clients 
 
 Uses ZeroClipboard for copying the HTML render to the user's clipboard.
 
+Update 11/2016: [video update](http://sodiumhalogen.com/up_c/updates-email-sig-gen-2016_s-9fP8STTXWi.mp4)
+
 ##Dev setup
 - npm install
 - gulp
