@@ -46,6 +46,12 @@ function addSignatureToFile(filename, emailSig) {
   $element.attr('download', filename);
 }
 
+function formatPhoneNumber(number){
+  var numberStripped = number.replace(/[^a-zA-Z0-9]/g, '');
+  var numberTailored = numberStripped.replace(/(\d\d\d)(\d\d\d)(\d\d\d\d)/, "$1.$2.$3");
+  return numberTailored;
+}
+
 function createTextField(label, id, placeholder){
   // Create new input field
   var newInput = document.createElement("INPUT");
