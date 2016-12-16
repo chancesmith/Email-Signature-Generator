@@ -103,7 +103,7 @@ function createTextField(label, id, placeholder){
   $('#form div').last().addClass('field');
 }
 
-// if cell phone is empty
+// if field is empty
 function removeElementFromTemplate(id){
   // turn string to html
   var $el =  $(signature);
@@ -116,25 +116,32 @@ function removeElementFromTemplate(id){
 //////
 // if testing variable exists
 //////
-if (getQueryVariable("test")) {
+var urlvar = getQueryVariable("test")
+if (urlvar) {
   console.log('yup, test is ready');
   showControls(true);
 
   first = "John";
   last = "Smith";
   creds = "Ph.D";
+  if(creds !== '') creds = ', ' + creds;
   title = "Director of Awesomeness";
   phone = "408.555.5555";
-  cell = "901.222.2222";
+
+  var tempfile;
+  if(urlvar == 'design')
+    tempfile="code.html";
+  else 
+    tempfile="inline-code.html";
 
   $.ajax({
-    url:"inline-code.html",  
+    url:tempfile,  
     success:function(data) {
 
-      signature = convertStringToTemplate(data, first, last, creds, title, phone, cell);
+      signature = convertStringToTemplate(data, first, last, creds, title, phone);
       if(creds==''){removeElementFromTemplate('creds');}
       if(title==''){removeElementFromTemplate('title');}
-      if(cell==''){removeElementFromTemplate('cell');}
+      if(phone==''){removeElementFromTemplate('phone');}
 
       // show the results && pass the first name for file download
       presentSignature(first, signature);
