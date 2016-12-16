@@ -103,6 +103,16 @@ function createTextField(label, id, placeholder){
   $('#form div').last().addClass('field');
 }
 
+// if cell phone is empty
+function removeElementFromTemplate(id){
+  // turn string to html
+  var $el =  $(signature);
+  // remove #cell
+  $el.find("#"+id).remove();
+  // turn html back to string
+  signature = $el.prop('outerHTML');
+}
+
 //////
 // if testing variable exists
 //////
@@ -115,13 +125,16 @@ if (getQueryVariable("test")) {
   creds = "Ph.D";
   title = "Director of Awesomeness";
   phone = "408.555.5555";
-  cell = "901.777.7575";
+  cell = "901.222.2222";
 
   $.ajax({
     url:"inline-code.html",  
     success:function(data) {
 
       signature = convertStringToTemplate(data, first, last, creds, title, phone, cell);
+      if(creds==''){removeElementFromTemplate('creds');}
+      if(title==''){removeElementFromTemplate('title');}
+      if(cell==''){removeElementFromTemplate('cell');}
 
       // show the results && pass the first name for file download
       presentSignature(first, signature);
