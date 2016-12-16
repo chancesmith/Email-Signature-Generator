@@ -15,7 +15,8 @@ function showControls(flag){
 
 showControls(false);
 
-function presentSignature(fName){
+function presentSignature(fName, signature){
+  console.log('yup, presented');
   // show user the the results
   document.getElementById("demo").innerHTML=signature;
   //suggest to the user to edit or make another
@@ -52,6 +53,33 @@ function formatPhoneNumber(number){
   return numberTailored;
 }
 
+function getQueryVariable(variable){
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if(pair[0] == variable){return pair[1];}
+  }
+  return(false);
+}
+
+function convertStringToTemplate(tpl, ...rest){
+  console.log('yup, converted template');
+  // tpl = tpl.replace(/`/g, ''); // safety precaution
+  var t = new Function('return `' + tpl + '`');
+  return t(...rest);
+}
+
+function loadTemplate(...rest) {
+  console.log('yup, loaded template');
+  return $.ajax({
+    url:"inline-code.html",  
+    success:function(data) {
+      convertStringToTemplate(data, ...rest);
+    }
+  });
+}
+
 function createTextField(label, id, placeholder){
   // Create new input field
   var newInput = document.createElement("INPUT");
@@ -73,4 +101,43 @@ function createTextField(label, id, placeholder){
   // add to #form
   document.getElementById("form").appendChild(newDiv);
   $('#form div').last().addClass('field');
+}
+
+// if cell phone is empty
+function removeElementFromTemplate(id){
+  // turn string to html
+  var $el =  $(signature);
+  // remove #cell
+  $el.find("#"+id).remove();
+  // turn html back to string
+  signature = $el.prop('outerHTML');
+}
+
+//////
+// if testing variable exists
+//////
+if (getQueryVariable("test")) {
+  console.log('yup, test is ready');
+  showControls(true);
+
+  first = "John";
+  last = "Smith";
+  creds = "Ph.D";
+  title = "Director of Awesomeness";
+  phone = "408.555.5555";
+  cell = "901.222.2222";
+
+  $.ajax({
+    url:"inline-code.html",  
+    success:function(data) {
+
+      signature = convertStringToTemplate(data, first, last, creds, title, phone, cell);
+      if(creds==''){removeElementFromTemplate('creds');}
+      if(title==''){removeElementFromTemplate('title');}
+      if(cell==''){removeElementFromTemplate('cell');}
+
+      // show the results && pass the first name for file download
+      presentSignature(first, signature);
+    }
+  });
 }
