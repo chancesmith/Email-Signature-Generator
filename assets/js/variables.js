@@ -33,12 +33,12 @@ function buidSignature() {
 
   //Get the value of input field with id="INPUT-FIELD-ID"
   first = document.getElementById("first").value;
-  var last = document.getElementById("last").value;
-  var creds = document.getElementById("creds").value;
+  last = document.getElementById("last").value;
+  creds = document.getElementById("creds").value;
   if(creds !== '') creds = ', ' + creds;
-  var title = document.getElementById("title").value;
-  var phone = formatPhoneNumber( document.getElementById("phone").value );
-  var cell = document.getElementById("cell").value;
+  title = document.getElementById("title").value;
+  phone = formatPhoneNumber( document.getElementById("phone").value );
+  cell = document.getElementById("cell").value;
   if(cell !== '')formatPhoneNumber(cell);
 
   $.ajax({
@@ -46,6 +46,8 @@ function buidSignature() {
     success:function(data) {
 
       signature = convertStringToTemplate(data, first, last, creds, title, phone, cell);
+      
+      // optional fields
       if(creds==''){removeElementFromTemplate('creds');}
       if(title==''){removeElementFromTemplate('title');}
       if(cell==''){removeElementFromTemplate('cell');}
