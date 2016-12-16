@@ -46,6 +46,9 @@ function buidSignature() {
     success:function(data) {
 
       signature = convertStringToTemplate(data, first, last, creds, title, phone, cell);
+      if(creds==''){removeElementFromTemplate('creds');}
+      if(title==''){removeElementFromTemplate('title');}
+      if(cell==''){removeElementFromTemplate('cell');}
 
       // show the results && pass the first name for file download
       presentSignature(first, signature);
