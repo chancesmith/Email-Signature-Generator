@@ -11,3 +11,6 @@ Update 11/2016: [video update](http://sodiumhalogen.com/up_c/updates-email-sig-g
 - (optional step 2) paste inline export into `inline-code.html` 
 - copy and divide the `code.html` into the variables of the javascript inside `variables.js`
 - in variables.js look for `***` for areas to edit
+
+##Todos
+[ ]add [Juice](https://github.com/Automattic/juice) instead of gulp inliner, maybe??
