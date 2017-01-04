@@ -13,4 +13,5 @@ Update 11/2016: [video update](http://sodiumhalogen.com/up_c/updates-email-sig-g
 - in variables.js look for `***` for areas to edit
 
 ##Todos
+[ ]look at [Inky + Foundations](https://foundation.zurb.com/emails/docs/) for email templates
 [ ]add [Juice](https://github.com/Automattic/juice) instead of gulp inliner, maybe??
