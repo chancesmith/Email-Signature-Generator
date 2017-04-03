@@ -162,7 +162,7 @@ function cleanUpText(str)
  return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
-// if cell phone is empty
+// if field is empty
 function removeElementFromTemplate(id, sig){
   // turn string to html
   var $el =  $(sig);

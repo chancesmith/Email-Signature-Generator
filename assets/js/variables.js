@@ -4,7 +4,8 @@
 //////
 var companyName = 'Dromygosh Agency';
 var companyInitals = 'DMG';
-
+// server path ***
+// this may change based on your local or live server set
 var www = "";
 if(window.location.href.indexOf("www") > -1){ www = "www."};
 var serverPath = "http://0.0.0.0:8000";
@@ -76,14 +77,25 @@ function buidSignature() {
     url:"./dist/code.html",  
     success:function(data) {
       headshot = document.getElementById("headshot").value;
-      signature = convertStringToTemplate(data, headshot, first, last, creds, title, phone, serverPath);
+      // put in all the variables need here ***
+      // to add data for `dist/code.html` email signature template
+      signature = convertStringToTemplate(
+        data, 
+        headshot, 
+        first, 
+        last, 
+        creds, 
+        title, 
+        phone, 
+        serverPath
+      );
       console.log(headshot);
 
       // if headshot is empty or null ...whatever
       if(headshot=='' || headshot=="No Photo")
         signature = moveCompanyLogo(signature, "#top-logo", "#bottom-logo");
 
-      // optional fields
+      // optional fields ***
       if(creds===''){signature = removeElementFromTemplate('creds', signature);}
       if(title===''){signature = removeElementFromTemplate('title', signature);}
       if(division===''){signature = removeElementFromTemplate('division', signature);}
