@@ -3,7 +3,7 @@ We design email signatures at SodiumHalogen.com, this snippet helps our clients 
 
 ![](http://sodiumhalogen.com/up_c/Screen%20Shot%202017-04-02%20at%2010.35.39%20PM-rEzHZTjwo6.png)
 
-##Dev setup
+## Dev setup
 - `npm install`
 - start by editing the `code.html` to design the email signature (see data javascript variables in file: `${first}`,`${last}`,`${companyName}`).
 - change server path variable in `assets/js/variables.js`
