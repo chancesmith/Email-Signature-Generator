@@ -1,14 +1,14 @@
 {
-  "name": "allygn",
-  "version": "1.0.0",
-  "description": "allygn new static site",
+  "name": "email-signature-generator",
+  "version": "2.0.0",
+  "description": "email signature generator",
   "main": "index.html",
   "scripts": {
     "test": ""
   },
   "repository": {
     "type": "",
-    "url": "https://chancesmith@bitbucket.org/teamsodiumhalogen/allygn.git"
+    "url": ""
   },
   "keywords": [
     "gulp",
@@ -16,18 +16,16 @@
     "js",
     "images"
   ],
-  "author": "Joe Richardson",
+  "author": "Chance Smith",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dope/gulp-starter/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/dope/gulp-starter",
+  "homepage": "",
   "devDependencies": {
-    "browser-sync": "^2.8.2",
     "gulp": "^3.9.0",
-    "gulp-plumber": "^0.6.6"
-  },
-  "dependencies": {
-    "semantic-ui": "^2.2.6"
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-inline-css": "^3.1.0",
+    "gulp-remove-html-comments": "^1.0.1"
   }
 }
