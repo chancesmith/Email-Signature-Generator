@@ -1,0 +1,19 @@
+{
+  "name": "bulk-email-signature-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:sodiumhalogenteam/bulk-email-signature-generator.git",
+  "author": "SH",
+  "license": "MIT",
+  "scripts": {
+    "bulk": "vite",
+    "inline": "inline-css -i email-sig-template.html -o generated__email-sig-template-inline.html"
+  },
+  "volta": {
+    "node": "18.12.1",
+    "yarn": "1.22.19"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
