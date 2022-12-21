@@ -2,18 +2,18 @@
   <tbody>
     <tr>
       <td rowspan="5">
-        {/* table containing the logo image */}
+        <!-- table containing the logo image -->
         <table cellpadding="0" cellspacing="0">
           <tbody>
             <tr>
               <td>
-                <img class="main-image" src={https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png} alt="ata-logo" />
+                <img class="main-image" src={{logoUrl}} alt="ata-logo" />
               </td>
             </tr>
           </tbody>
         </table>
       </td>
-      <td class="text-container-margin" rowspan={5}>
+      <td class="text-container-margin" rowspan="5">
         <table cellpadding="0" cellspacing="0" class="table-height">
           <tbody>
             <tr>
@@ -31,10 +31,10 @@
               </td>
             </tr>
             <tr>
-              {/* the class 'align-bottom' also controls the height of the row that this cell inhabits */}
+              <!-- the class 'align-bottom' also controls the height of the row that this cell inhabits -->
               <td class="align-bottom">
                 {{#if calendly}}
-                <a href={{calendly}}>SCHEDULE A MEETING </a>
+                <a href="{{calendly}}">SCHEDULE A MEETING </a>
                 {{/if}}
               </td>
             </tr>
