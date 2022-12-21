@@ -1,12 +1,46 @@
-<table>
-  <tr>
-    Name: {{name}}
-  </tr>
-  <!-- Conditionally show the phone field if it is not empty -->
-  {{#if phone}}
-  <tr class="thing">
-    Phone:
-    <a href="tel:{{phone}}">{{phone}}</a>
-  </tr>
-  {{/if}}
+<table cellpadding="11" cellspacing="0" class="signature">
+  <tbody>
+    <tr>
+      <td rowspan="5">
+        {/* table containing the logo image */}
+        <table cellpadding="0" cellspacing="0">
+          <tbody>
+            <tr>
+              <td>
+                <img class="main-image" src={https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png} alt="ata-logo" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td class="text-container-margin" rowspan={5}>
+        <table cellpadding="0" cellspacing="0" class="table-height">
+          <tbody>
+            <tr>
+              <td class="blue-bold-text">
+                {{fullname}}{{#if title}}, {{credentials}}{{/if}}
+              </td>
+            </tr>
+            <tr>
+              <td class="regular-text">{{title}}</td>
+            </tr>
+            <tr>
+              <td class="regular-text">
+                P: {{telephone}}
+                {{#if mobilephone}}M: {{mobilephone}}{{/if}}
+              </td>
+            </tr>
+            <tr>
+              {/* the class 'align-bottom' also controls the height of the row that this cell inhabits */}
+              <td class="align-bottom">
+                {{#if calendly}}
+                <a href={{calendly}}>SCHEDULE A MEETING </a>
+                {{/if}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
 </table>

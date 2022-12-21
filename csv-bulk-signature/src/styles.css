@@ -1,3 +1,38 @@
-.thing {
-  color: red;
+.main-image {
+  width: 120px;
+  height: 90px;
+}
+
+.signature {
+  height: 100px;
+  max-width: 100%;
+  white-space: nowrap;
+  background: #FFFFFF;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.text-container-margin {
+  margin: 5;
+}
+
+.table-height {
+  height: 100%;
+}
+
+.blue-bold-text {
+  color: #4899d5;
+  font-family: helvetica, bold;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.regular-text {
+  color: black;
+  font-family: helvetica;
+  font-size: 12px;
+}
+
+.align-bottom {
+  height: 60%;
+  vertical-align: bottom;
 }

@@ -1,10 +1,10 @@
 // setup Typescript for node (change required to import)
 // get csv
 
-const fs = require("fs"); // comes with NODE
-const csv = require("csv-parser"); // install me
-const handlebars = require("handlebars"); // install me
-const zlib = require("zlib"); // install me
+import fs from "fs";
+import handlebars from "handlebars";
+import csv from "csv-parser";
+import zlib from "zlib";
 
 // TODO: add counter let - Chance Smith 12/20/2022
 
@@ -50,11 +50,11 @@ const zipWriteStream = fs.createWriteStream("signature-templates.zip");
 zip.pipe(zipWriteStream);
 
 // Add all the HTML files to the zip file
-fs.readdirSync("dist").forEach((file) => {
-  zip.append(fs.createReadStream(`dist/${file}`), { name: file });
-});
+// fs.readdirSync("dist").forEach((file) => {
+//   zip.append(fs.createReadStream(`dist/${file}`), { name: file });
+// });
 
 // Close the zip file
-zip.finalize();
+// zip.finalize();
 
 console.log("HTML files zipped");
