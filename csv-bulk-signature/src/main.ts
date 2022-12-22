@@ -11,8 +11,9 @@ const TEMPLATE = "./src/email-sig-template.html";
 const LOGOS = {
   "ata-cpa-advisors":
     "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
-  atac: "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
-  ataes:
+  "ata-capital":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
+  "ata-employment-solutions":
     "https://temp-ata-signature-assets.s3.amazonaws.com/ATAES_LOGO-BT-RGB.png",
 } as const;
 
