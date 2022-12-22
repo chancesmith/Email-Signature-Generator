@@ -1,10 +1,12 @@
 import fs from "fs";
+import path from "path";
 import csv from "csv-parser";
 import inlineCss from "inline-css";
+import handlebars from "handlebars";
 
 // inputs
 const CSV_FILE = "./src/contacts.csv";
-const TEMPLATE = "./src/generated__email-sig-template-inline.html";
+const TEMPLATE = "./src/email-sig-template.html";
 
 const LOGOS = {
   "ata-cpa-advisors":
@@ -16,38 +18,158 @@ const LOGOS = {
 
 interface Contact {
   "Brand*": keyof typeof LOGOS;
+  "Full Name*": string;
+  Credentials: string;
+  "Title*": string;
+  "Office Phone*": string;
+  "Mobile Phone": string;
+  "Calendly Link": string;
 }
 
-fs.createReadStream(CSV_FILE)
-  .pipe(csv())
-  .on("data", (row: Contact) => {
-    const logoId = row["Brand*"];
-    const logoUrl = LOGOS[logoId];
-    // gets rest of fields from each row
-    // 'Full Name*': 'Diane Willingham',
-    // Credentials: '',
-    // 'Title*': 'Senior Bookkeeper',
-    // 'Office Phone*': '270.827.1577',
-    // 'Mobile Phone': '',
-    // 'Calendly Link': ''
+interface TemplateData {
+  logoUrl: string;
+  fullName: string;
+  credentials: string;
+  title: string;
+  officePhone: string;
+  mobilePhone: string;
+  calendly: string;
+}
 
-    //
+const skippedRows: string[] = [];
+let counter = 0;
+
+fs.readFile(TEMPLATE, "utf8", async (err, og_template) => {
+  if (err) throw err;
+
+  const inlinedTemplate = await inlineCss(og_template, {
+    url: "./",
+    removeHtmlSelectors: true,
   });
 
-fs.readFile(
-  "./src/email-sig-template.html",
-  "utf8",
-  async (err, og_template) => {
-    if (err) throw err;
+  // Compile the template
+  const template = await handlebars.compile<TemplateData>(inlinedTemplate);
 
-    const inlinedTemplate = await inlineCss(og_template, {
-      url: "./",
-      removeHtmlSelectors: true,
-    }); // need to reference the style.css ???
+  // deleteAllSignatures();
+  checkHeadersToBeSame();
+  generateSignatures(template);
+});
 
-    console.log({ inlinedTemplate });
+function generateSignatures(
+  template: HandlebarsTemplateDelegate<TemplateData>
+) {
+  fs.createReadStream(CSV_FILE)
+    .pipe(csv())
+    .on("data", (row: Contact) => {
+      const logoId = row["Brand*"];
+      const logoUrl = LOGOS[logoId];
+      const fullName = row["Full Name*"];
+      const credentials = row["Credentials"];
+      const title = row["Title*"];
+      const officePhone = row["Office Phone*"];
+      const mobilePhone = row["Mobile Phone"];
+      const calendly = row["Calendly Link"];
 
-    // Compile the template
-    // template = handlebars.compile(inlinedTemplate);
-  }
-);
+      const hasRequiredData = checkRequiredFields(row);
+      if (!hasRequiredData) {
+        skippedRows.push(fullName);
+        return;
+      }
+      if (template) {
+        const html = template({
+          logoUrl,
+          fullName,
+          credentials,
+          title,
+          officePhone,
+          mobilePhone,
+          calendly,
+        });
+        fs.writeFile(
+          `./dist/${fullName.split(" ").join("")}.html`,
+          html,
+          (err) => {
+            if (err) throw err;
+          }
+        );
+        counter = counter + 1;
+      }
+    })
+    .on("end", () => {
+      // show skipped rows
+      if (skippedRows.length) console.log({ skippedRows });
+
+      // show results summary
+      console.log("All rows processed", counter);
+      console.log(
+        "Signatures skipped",
+        skippedRows.length,
+        "for missing required fields (scroll up to see list)"
+      );
+    });
+}
+
+const checkRequiredFields = (row: Contact) => {
+  //   console.log({ row });
+  if (
+    row["Brand*"].length &&
+    row["Full Name*"].length &&
+    row["Title*"].length &&
+    row["Office Phone*"].length
+  )
+    return true;
+  return false;
+};
+
+function deleteAllSignatures() {
+  const folderPath = "./dist";
+
+  fs.readdir(folderPath, (error, files) => {
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    for (const file of files) {
+      if (path.extname(file) === ".html") {
+        fs.unlink(path.join(folderPath, file), (error) => {
+          if (error) {
+            console.error(error);
+          }
+        });
+      }
+    }
+  });
+}
+
+function checkHeadersToBeSame() {
+  const expectedHeaders = [
+    "Brand*",
+    "Full Name*",
+    "Credentials",
+    "Title*",
+    "Office Phone*",
+    "Mobile Phone",
+    "Calendly Link",
+  ];
+
+  const parser = csv();
+
+  let counter = 0;
+
+  fs.createReadStream(CSV_FILE)
+    .pipe(parser)
+    .on("data", (data) => {
+      if (counter === 1) return;
+
+      const headersMatch = expectedHeaders.every((expectedHeader) =>
+        data.hasOwnProperty(expectedHeader)
+      );
+      if (headersMatch) {
+        console.log("Headers match ::thumbs::");
+      } else {
+        console.log("Headers do not match ::warning::");
+      }
+      counter = 1;
+    });
+}
