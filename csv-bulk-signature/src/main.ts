@@ -1,60 +1,53 @@
-// setup Typescript for node (change required to import)
-// get csv
-
 import fs from "fs";
-import handlebars from "handlebars";
 import csv from "csv-parser";
-import zlib from "zlib";
+import inlineCss from "inline-css";
 
-// TODO: add counter let - Chance Smith 12/20/2022
+// inputs
+const CSV_FILE = "./src/contacts.csv";
+const TEMPLATE = "./src/generated__email-sig-template-inline.html";
 
-fs.createReadStream("contacts.csv")
+const LOGOS = {
+  "ata-cpa-advisors":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
+  atac: "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
+  ataes:
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAES_LOGO-BT-RGB.png",
+} as const;
+
+interface Contact {
+  "Brand*": keyof typeof LOGOS;
+}
+
+fs.createReadStream(CSV_FILE)
   .pipe(csv())
-  .on("data", (row) => {
-    // Process the row
-    const fullName = row.fullName; // or row['Calendly Link']
-    const phone = row.phone;
-    const company = row.company; // TODO: match company-id with image url (Hosted at ATAT or SH S3) - Chance Smith 12/20/2022
+  .on("data", (row: Contact) => {
+    const logoId = row["Brand*"];
+    const logoUrl = LOGOS[logoId];
+    // gets rest of fields from each row
+    // 'Full Name*': 'Diane Willingham',
+    // Credentials: '',
+    // 'Title*': 'Senior Bookkeeper',
+    // 'Office Phone*': '270.827.1577',
+    // 'Mobile Phone': '',
+    // 'Calendly Link': ''
 
-    // Read the HTML template
-    fs.readFile("template.html", "utf8", (err, data) => {
-      if (err) throw err;
-
-      // Compile the template
-      const template = handlebars.compile(data);
-
-      // Render the template with the data from the row
-      const html = template({ fullName: fullName, phone: phone });
-
-      // Write the rendered HTML to a new file
-      fs.writeFile(`dist/${fullName}.html`, html, (err) => {
-        if (err) throw err;
-        // TODO: add counter + 1
-      });
-    });
-  })
-  .on("end", () => {
-    // TODO: if all succfully written: log out the counter
-    console.log("All rows processed");
+    //
   });
 
-// TODO: zip up all html files in dist/ folder
+fs.readFile(
+  "./src/email-sig-template.html",
+  "utf8",
+  async (err, og_template) => {
+    if (err) throw err;
 
-// Create a zip file
-const zip = zlib.createGzip();
+    const inlinedTemplate = await inlineCss(og_template, {
+      url: "./",
+      removeHtmlSelectors: true,
+    }); // need to reference the style.css ???
 
-// Create a write stream for the zip file
-const zipWriteStream = fs.createWriteStream("signature-templates.zip");
+    console.log({ inlinedTemplate });
 
-// Pipe the zip file through the write stream
-zip.pipe(zipWriteStream);
-
-// Add all the HTML files to the zip file
-// fs.readdirSync("dist").forEach((file) => {
-//   zip.append(fs.createReadStream(`dist/${file}`), { name: file });
-// });
-
-// Close the zip file
-// zip.finalize();
-
-console.log("HTML files zipped");
+    // Compile the template
+    // template = handlebars.compile(inlinedTemplate);
+  }
+);
