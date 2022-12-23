@@ -196,13 +196,5 @@ function zipUpFile() {
     zip.pipe(zipWriteStream);
 
     zip.on("end", () => console.log("HTML files zipped successfully"));
-
-    // for (const file of files) {
-    //   if (path.extname(file) === ".html") {
-    //     zip.push(file);
-    //   }
-    // }
-
-    // zip.
   });
 }
