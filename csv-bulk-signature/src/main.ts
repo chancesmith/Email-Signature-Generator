@@ -3,6 +3,7 @@ import path from "path";
 import csv from "csv-parser";
 import inlineCss from "inline-css";
 import handlebars from "handlebars";
+import zlib from "zlib";
 
 // inputs
 const CSV_FILE = "./src/contacts.csv";
@@ -107,11 +108,11 @@ function generateSignatures(
         skippedRows.length,
         "for missing required fields (scroll up to see list)"
       );
+      // zipUpFile();
     });
 }
 
 const checkRequiredFields = (row: Contact) => {
-  //   console.log({ row });
   if (
     row["Brand*"].length &&
     row["Full Name*"].length &&
@@ -173,4 +174,38 @@ function checkHeadersToBeSame() {
       }
       counter = 1;
     });
+}
+
+function zipUpFile() {
+  const folderPath = "./dist";
+  const zip = zlib.createGzip();
+  const zipWriteStream = fs.createWriteStream("signature-templates.zip");
+
+  fs.readdir(folderPath, (error, files) => {
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const htmlFiles = files.filter((file) => file.endsWith(".html"));
+
+    // loop through the HTML files and pipe each one to the zip file
+    htmlFiles.forEach((htmlFile) => {
+      fs.createReadStream(`${folderPath}/${htmlFile}`)
+        .pipe(zip)
+        .pipe(zipWriteStream);
+    });
+    zip.close();
+    zipWriteStream.close();
+
+    zip.on("end", () => console.log("HTML files zipped successfully"));
+
+    // for (const file of files) {
+    //   if (path.extname(file) === ".html") {
+    //     zip.push(file);
+    //   }
+    // }
+
+    // zip.
+  });
 }
