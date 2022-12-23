@@ -1,46 +1,97 @@
-<table cellpadding="11" cellspacing="0" class="signature">
-  <tbody>
-    <tr>
-      <td rowspan="5">
-        <!-- table containing the logo image -->
-        <table cellpadding="0" cellspacing="0">
-          <tbody>
-            <tr>
-              <td>
-                <img class="main-image" src={{logoUrl}} alt="ata-logo" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </td>
-      <td class="text-container-margin" rowspan="5">
-        <table cellpadding="0" cellspacing="0" class="table-height">
-          <tbody>
-            <tr>
-              <td class="blue-bold-text">
-                {{fullname}}{{#if title}}, {{credentials}}{{/if}}
-              </td>
-            </tr>
-            <tr>
-              <td class="regular-text">{{title}}</td>
-            </tr>
-            <tr>
-              <td class="regular-text">
-                P: {{telephone}}
-                {{#if mobilephone}}M: {{mobilephone}}{{/if}}
-              </td>
-            </tr>
-            <tr>
-              <!-- the class 'align-bottom' also controls the height of the row that this cell inhabits -->
-              <td class="align-bottom">
-                {{#if calendly}}
-                <a href="{{calendly}}">SCHEDULE A MEETING </a>
-                {{/if}}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<html>
+  <body>
+    <style>
+      .main-image {
+        width: 120px;
+        height: 90px;
+      }
+    
+      .signature {
+        height: 100px;
+        max-width: 100%;
+        white-space: nowrap;
+        background: #FFFFFF;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+    
+      .text-container-margin {
+        margin: 2;
+      }
+    
+      .table-height {
+        height: 100%;
+      }
+    
+      .blue-bold-text {
+        color: #4899D5;
+        font-family: helvetica, bold;
+        font-weight: bold;
+        font-size: 14px;
+      }
+    
+      .regular-text {
+        color: #A2A8AB;
+        font-family: helvetica;
+        font-size: 14px;
+      }
+    
+      .align-bottom {
+        height: 60%;
+        vertical-align: bottom;
+        color: #4899D5;
+      }
+    
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+    </style>
+    
+    <table cellpadding="11" cellspacing="0" class="signature">
+      <tbody>
+        <tr>
+          <td rowspan="5">
+            <!-- table containing the logo image -->
+            <table cellpadding="0" cellspacing="0">
+              <tbody>
+                <tr>
+                  <td>
+                    <img class="main-image" src={{logoUrl}} alt="ata-logo" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td class="text-container-margin" rowspan="5">
+            <table cellpadding="0" cellspacing="0" class="table-height">
+              <tbody>
+                <tr>
+                  <td class="blue-bold-text">
+                    {{fullName}}{{#if credentials}}, {{credentials}}{{/if}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="regular-text">{{title}}</td>
+                </tr>
+                <tr>
+                  <td class="regular-text">
+                    P: {{officePhone}}
+                    {{#if mobilePhone}}M: {{mobilePhone}}{{/if}}
+                  </td>
+                </tr>
+                <tr>
+                  <!-- the class 'align-bottom' also controls the height of the row that this cell inhabits -->
+                  <td class="align-bottom">
+                    {{#if calendly}}
+                    <a href="{{calendly}}">SCHEDULE A MEETING </a>
+                    {{/if}}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

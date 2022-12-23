@@ -1,60 +1,175 @@
-// setup Typescript for node (change required to import)
-// get csv
-
 import fs from "fs";
-import handlebars from "handlebars";
+import path from "path";
 import csv from "csv-parser";
-import zlib from "zlib";
+import inlineCss from "inline-css";
+import handlebars from "handlebars";
 
-// TODO: add counter let - Chance Smith 12/20/2022
+// inputs
+const CSV_FILE = "./src/contacts.csv";
+const TEMPLATE = "./src/email-sig-template.html";
 
-fs.createReadStream("contacts.csv")
-  .pipe(csv())
-  .on("data", (row) => {
-    // Process the row
-    const fullName = row.fullName; // or row['Calendly Link']
-    const phone = row.phone;
-    const company = row.company; // TODO: match company-id with image url (Hosted at ATAT or SH S3) - Chance Smith 12/20/2022
+const LOGOS = {
+  "ata-cpa-advisors":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
+  atac: "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
+  ataes:
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAES_LOGO-BT-RGB.png",
+} as const;
 
-    // Read the HTML template
-    fs.readFile("template.html", "utf8", (err, data) => {
-      if (err) throw err;
+interface Contact {
+  "Brand*": keyof typeof LOGOS;
+  "Full Name*": string;
+  Credentials: string;
+  "Title*": string;
+  "Office Phone*": string;
+  "Mobile Phone": string;
+  "Calendly Link": string;
+}
 
-      // Compile the template
-      const template = handlebars.compile(data);
+interface TemplateData {
+  logoUrl: string;
+  fullName: string;
+  credentials: string;
+  title: string;
+  officePhone: string;
+  mobilePhone: string;
+  calendly: string;
+}
 
-      // Render the template with the data from the row
-      const html = template({ fullName: fullName, phone: phone });
+const skippedRows: string[] = [];
+let counter = 0;
 
-      // Write the rendered HTML to a new file
-      fs.writeFile(`dist/${fullName}.html`, html, (err) => {
-        if (err) throw err;
-        // TODO: add counter + 1
-      });
-    });
-  })
-  .on("end", () => {
-    // TODO: if all succfully written: log out the counter
-    console.log("All rows processed");
+fs.readFile(TEMPLATE, "utf8", async (err, og_template) => {
+  if (err) throw err;
+
+  const inlinedTemplate = await inlineCss(og_template, {
+    url: "./",
+    removeHtmlSelectors: true,
   });
 
-// TODO: zip up all html files in dist/ folder
+  // Compile the template
+  const template = await handlebars.compile<TemplateData>(inlinedTemplate);
 
-// Create a zip file
-const zip = zlib.createGzip();
+  // deleteAllSignatures();
+  checkHeadersToBeSame();
+  generateSignatures(template);
+});
 
-// Create a write stream for the zip file
-const zipWriteStream = fs.createWriteStream("signature-templates.zip");
+function generateSignatures(
+  template: HandlebarsTemplateDelegate<TemplateData>
+) {
+  fs.createReadStream(CSV_FILE)
+    .pipe(csv())
+    .on("data", (row: Contact) => {
+      const logoId = row["Brand*"];
+      const logoUrl = LOGOS[logoId];
+      const fullName = row["Full Name*"];
+      const credentials = row["Credentials"];
+      const title = row["Title*"];
+      const officePhone = row["Office Phone*"];
+      const mobilePhone = row["Mobile Phone"];
+      const calendly = row["Calendly Link"];
 
-// Pipe the zip file through the write stream
-zip.pipe(zipWriteStream);
+      const hasRequiredData = checkRequiredFields(row);
+      if (!hasRequiredData) {
+        skippedRows.push(fullName);
+        return;
+      }
+      if (template) {
+        const html = template({
+          logoUrl,
+          fullName,
+          credentials,
+          title,
+          officePhone,
+          mobilePhone,
+          calendly,
+        });
+        fs.writeFile(
+          `./dist/${fullName.split(" ").join("")}.html`,
+          html,
+          (err) => {
+            if (err) throw err;
+          }
+        );
+        counter = counter + 1;
+      }
+    })
+    .on("end", () => {
+      // show skipped rows
+      if (skippedRows.length) console.log({ skippedRows });
 
-// Add all the HTML files to the zip file
-// fs.readdirSync("dist").forEach((file) => {
-//   zip.append(fs.createReadStream(`dist/${file}`), { name: file });
-// });
+      // show results summary
+      console.log("All rows processed", counter);
+      console.log(
+        "Signatures skipped",
+        skippedRows.length,
+        "for missing required fields (scroll up to see list)"
+      );
+    });
+}
 
-// Close the zip file
-// zip.finalize();
+const checkRequiredFields = (row: Contact) => {
+  //   console.log({ row });
+  if (
+    row["Brand*"].length &&
+    row["Full Name*"].length &&
+    row["Title*"].length &&
+    row["Office Phone*"].length
+  )
+    return true;
+  return false;
+};
 
-console.log("HTML files zipped");
+function deleteAllSignatures() {
+  const folderPath = "./dist";
+
+  fs.readdir(folderPath, (error, files) => {
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    for (const file of files) {
+      if (path.extname(file) === ".html") {
+        fs.unlink(path.join(folderPath, file), (error) => {
+          if (error) {
+            console.error(error);
+          }
+        });
+      }
+    }
+  });
+}
+
+function checkHeadersToBeSame() {
+  const expectedHeaders = [
+    "Brand*",
+    "Full Name*",
+    "Credentials",
+    "Title*",
+    "Office Phone*",
+    "Mobile Phone",
+    "Calendly Link",
+  ];
+
+  const parser = csv();
+
+  let counter = 0;
+
+  fs.createReadStream(CSV_FILE)
+    .pipe(parser)
+    .on("data", (data) => {
+      if (counter === 1) return;
+
+      const headersMatch = expectedHeaders.every((expectedHeader) =>
+        data.hasOwnProperty(expectedHeader)
+      );
+      if (headersMatch) {
+        console.log("Headers match ::thumbs::");
+      } else {
+        console.log("Headers do not match ::warning::");
+      }
+      counter = 1;
+    });
+}
