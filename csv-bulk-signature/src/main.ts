@@ -108,8 +108,8 @@ function generateSignatures(
         skippedRows.length,
         "for missing required fields (scroll up to see list)"
       );
-      // zipUpFile();
     });
+  zipUpFile();
 }
 
 const checkRequiredFields = (row: Contact) => {
@@ -191,12 +191,9 @@ function zipUpFile() {
 
     // loop through the HTML files and pipe each one to the zip file
     htmlFiles.forEach((htmlFile) => {
-      fs.createReadStream(`${folderPath}/${htmlFile}`)
-        .pipe(zip)
-        .pipe(zipWriteStream);
+      fs.createReadStream(`${folderPath}/${htmlFile}`).pipe(zip);
     });
-    zip.close();
-    zipWriteStream.close();
+    zip.pipe(zipWriteStream);
 
     zip.on("end", () => console.log("HTML files zipped successfully"));
 
