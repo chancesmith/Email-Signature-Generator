@@ -194,5 +194,5 @@ async function zipUpFile() {
   });
 
   const buffer = await zip.generateAsync({ type: "nodebuffer" });
-  fs.writeFileSync("signature-templates.zip", buffer);
+  fs.writeFileSync(`signatures-${new Date().toDateString()}.zip`, buffer);
 }
