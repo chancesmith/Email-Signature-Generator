@@ -1,10 +1,10 @@
-import { PhotoSignatureProps } from './App';
-import Logo from './assets/ata_cpa_advisors.png';
+import { PhotoSignatureProps } from "./App";
+import Logo from "./assets/ata_cpa_advisors.png";
 
 const Signature = (props: PhotoSignatureProps) => {
   return (
     /*Container table */
-    <table cellPadding={5} cellSpacing={0} className={'signature'}>
+    <table cellPadding={5} cellSpacing={0} className={"signature"}>
       <tbody>
         <tr>
           <td rowSpan={5}>
@@ -13,42 +13,44 @@ const Signature = (props: PhotoSignatureProps) => {
               <tbody>
                 <tr>
                   <td>
-                    <img className={'main-image'} src={Logo} alt={''} />
+                    <img className={"main-image"} src={Logo} alt={""} />
                   </td>
                 </tr>
               </tbody>
             </table>
           </td>
-          <td className={'text-container-margin'} rowSpan={5}>
+          <td className={"text-container-margin"} rowSpan={5}>
             {/* table containing the text content */}
-            <table cellPadding={0} cellSpacing={0} className={'table-height'}>
+            <table cellPadding={0} cellSpacing={0} className={"table-height"}>
               <tbody>
                 <tr>
-                  <td className={'blue-bold-text'}>
+                  <td className={"blue-bold-text"}>
                     {props.fullName}
-                    {props.credentials === '' ? '' : ', '}
-                    {props.credentials === '' ? '' : props.credentials}
+                    {props.credentials === "" ? "" : ", "}
+                    {props.credentials === "" ? "" : props.credentials}
                   </td>
                 </tr>
                 <tr>
-                  <td className={'regular-text'}>{props.title}</td>
+                  <td className={"regular-text"}>{props.title}</td>
                 </tr>
                 <tr>
-                  <td className={'regular-text'}>
-                    {props.phone === '' ? '' : 'P: '}
-                    {props.phone === '' ? '' : props.phone}
-                    {props.mobile === '' ? '' : 'M:'}{' '}
-                    {props.mobile === '' ? '' : props.mobile}
+                  <td className={"regular-text"}>
+                    {props.phone === "" ? "" : "P: "}
+                    {props.phone === "" ? "" : props.phone}
+                    {props.mobile === "" ? "" : " M:"}
+                    {props.mobile === "" ? "" : props.mobile}
                   </td>
                 </tr>
                 <tr>
                   {/* the class 'align-bottom' also controls the height of the row that this cell inhabits */}
-                  <td className={'align-bottom'}>
+                  <td className={"align-bottom"}>
                     {/* if props.calendlyLink is blank there will be nothing in this cell */}
                     <a
-                      href={props.calendlyLink === '' ? '' : props.calendlyLink}
+                      href={props.calendlyLink === "" ? "" : props.calendlyLink}
+                      target="_blank"
+                      rel="noreferrer noopener"
                     >
-                      {props.calendlyLink === '' ? '' : 'SCHEDULE A MEETING'}
+                      {props.calendlyLink === "" ? "" : "SCHEDULE A MEETING"}
                     </a>
                   </td>
                 </tr>
