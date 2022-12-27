@@ -1,8 +1,9 @@
-import fs from "fs";
-import path from "path";
 import csv from "csv-parser";
-import inlineCss from "inline-css";
+import fs from "fs";
 import handlebars from "handlebars";
+import inlineCss from "inline-css";
+import jszip from "jszip";
+import path from "path";
 
 // inputs
 const CSV_FILE = "./src/contacts.csv";
@@ -11,8 +12,9 @@ const TEMPLATE = "./src/email-sig-template.html";
 const LOGOS = {
   "ata-cpa-advisors":
     "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
-  atac: "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
-  ataes:
+  "ata-capital":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
+  "ata-employment-solutions":
     "https://temp-ata-signature-assets.s3.amazonaws.com/ATAES_LOGO-BT-RGB.png",
 } as const;
 
@@ -86,7 +88,7 @@ function generateSignatures(
           calendly,
         });
         fs.writeFile(
-          `./dist/${fullName.split(" ").join("")}.html`,
+          `./dist/${fullName.split(" ").join("")}.htm`,
           html,
           (err) => {
             if (err) throw err;
@@ -100,17 +102,17 @@ function generateSignatures(
       if (skippedRows.length) console.log({ skippedRows });
 
       // show results summary
-      console.log("All rows processed", counter);
+      console.log("Number of signatures processed", counter);
       console.log(
-        "Signatures skipped",
+        "Number of signatures skipped",
         skippedRows.length,
         "for missing required fields (scroll up to see list)"
       );
     });
+  zipUpFile();
 }
 
 const checkRequiredFields = (row: Contact) => {
-  //   console.log({ row });
   if (
     row["Brand*"].length &&
     row["Full Name*"].length &&
@@ -172,4 +174,25 @@ function checkHeadersToBeSame() {
       }
       counter = 1;
     });
+}
+
+async function zipUpFile() {
+  const folderPath = "./dist";
+  const files = fs.readdirSync(folderPath);
+  const filesHtm = files.filter((file) => file.endsWith(".htm"));
+
+  const zip = new jszip();
+
+  filesHtm.forEach((file) => {
+    try {
+      const filePath = `${folderPath}/${file}`;
+      const fileContents = fs.readFileSync(filePath);
+      zip.file(file, fileContents);
+    } catch (error) {
+      console.error(`Error adding file ${file}: ${error.message}`);
+    }
+  });
+
+  const buffer = await zip.generateAsync({ type: "nodebuffer" });
+  fs.writeFileSync(`signatures-${new Date().toDateString()}.zip`, buffer);
 }
