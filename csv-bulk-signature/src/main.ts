@@ -1,9 +1,9 @@
-import fs from "fs";
-import path from "path";
 import csv from "csv-parser";
-import inlineCss from "inline-css";
+import fs from "fs";
 import handlebars from "handlebars";
-import zlib from "zlib";
+import inlineCss from "inline-css";
+import jszip from "jszip";
+import path from "path";
 
 // inputs
 const CSV_FILE = "./src/contacts.csv";
@@ -88,7 +88,7 @@ function generateSignatures(
           calendly,
         });
         fs.writeFile(
-          `./dist/${fullName.split(" ").join("")}.html`,
+          `./dist/${fullName.split(" ").join("")}.htm`,
           html,
           (err) => {
             if (err) throw err;
@@ -102,9 +102,9 @@ function generateSignatures(
       if (skippedRows.length) console.log({ skippedRows });
 
       // show results summary
-      console.log("All rows processed", counter);
+      console.log("Number of signatures processed", counter);
       console.log(
-        "Signatures skipped",
+        "Number of signatures skipped",
         skippedRows.length,
         "for missing required fields (scroll up to see list)"
       );
@@ -176,25 +176,23 @@ function checkHeadersToBeSame() {
     });
 }
 
-function zipUpFile() {
+async function zipUpFile() {
   const folderPath = "./dist";
-  const zip = zlib.createGzip();
-  const zipWriteStream = fs.createWriteStream("signature-templates.zip");
+  const files = fs.readdirSync(folderPath);
+  const filesHtm = files.filter((file) => file.endsWith(".htm"));
 
-  fs.readdir(folderPath, (error, files) => {
-    if (error) {
-      console.error(error);
-      return;
+  const zip = new jszip();
+
+  filesHtm.forEach((file) => {
+    try {
+      const filePath = `${folderPath}/${file}`;
+      const fileContents = fs.readFileSync(filePath);
+      zip.file(file, fileContents);
+    } catch (error) {
+      console.error(`Error adding file ${file}: ${error.message}`);
     }
-
-    const htmlFiles = files.filter((file) => file.endsWith(".html"));
-
-    // loop through the HTML files and pipe each one to the zip file
-    htmlFiles.forEach((htmlFile) => {
-      fs.createReadStream(`${folderPath}/${htmlFile}`).pipe(zip);
-    });
-    zip.pipe(zipWriteStream);
-
-    zip.on("end", () => console.log("HTML files zipped successfully"));
   });
+
+  const buffer = await zip.generateAsync({ type: "nodebuffer" });
+  fs.writeFileSync("signature-templates.zip", buffer);
 }
