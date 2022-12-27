@@ -39,7 +39,7 @@ interface TemplateData {
 }
 
 const skippedRows: string[] = [];
-let counter = 0;
+const processedRows: string[] = [];
 
 fs.readFile(TEMPLATE, "utf8", async (err, og_template) => {
   if (err) throw err;
@@ -75,7 +75,8 @@ function generateSignatures(
       const hasRequiredData = checkRequiredFields(row);
       if (!hasRequiredData) {
         skippedRows.push(fullName);
-        return;
+      } else {
+        processedRows.push(fullName);
       }
       if (template) {
         const html = template({
@@ -94,20 +95,13 @@ function generateSignatures(
             if (err) throw err;
           }
         );
-        counter = counter + 1;
       }
     })
     .on("end", () => {
-      // show skipped rows
-      if (skippedRows.length) console.log({ skippedRows });
-
       // show results summary
-      console.log("Number of signatures processed", counter);
-      console.log(
-        "Number of signatures skipped",
-        skippedRows.length,
-        "for missing required fields (scroll up to see list)"
-      );
+      console.log("Number of signatures processed", processedRows.length);
+      console.log("Number of signatures skipped", skippedRows.length);
+      createStatusReport(); // refactoring the results specifics to be shown in a text file, instead
     });
   zipUpFile();
 }
@@ -133,7 +127,7 @@ function deleteAllSignatures() {
     }
 
     for (const file of files) {
-      if (path.extname(file) === ".html") {
+      if (path.extname(file) === ".html" || path.extname(file) === ".htm") {
         fs.unlink(path.join(folderPath, file), (error) => {
           if (error) {
             console.error(error);
@@ -194,5 +188,18 @@ async function zipUpFile() {
   });
 
   const buffer = await zip.generateAsync({ type: "nodebuffer" });
-  fs.writeFileSync(`signatures-${new Date().toDateString()}.zip`, buffer);
+  fs.writeFileSync(
+    `signatures-${new Date().toISOString().split("T")[0]}.zip`,
+    buffer
+  );
+}
+
+function createStatusReport() {
+  skippedRows.unshift("\nROWS/SIGNATURES SKIPPED:\n");
+  processedRows.unshift("\nROWS/SIGNATURES PROCESSED SUCCESSFULLY:\n");
+  const combinedStatus = processedRows.concat(skippedRows);
+  fs.writeFile("statusReport.txt", combinedStatus.join("\n"), (err) => {
+    if (err) throw err;
+    console.log("The file has been saved");
+  });
 }
