@@ -41,6 +41,14 @@ interface TemplateData {
 const skippedRows: string[] = [];
 const processedRows: string[] = [];
 
+// create ./dist/signatures if it doesn't exist
+if (!fs.existsSync("./dist")) {
+  fs.mkdirSync("./dist");
+}
+if (!fs.existsSync("./dist/signatures")) {
+  fs.mkdirSync("./dist/signatures");
+}
+
 fs.readFile(TEMPLATE, "utf8", async (err, og_template) => {
   if (err) throw err;
 
@@ -63,6 +71,9 @@ function generateSignatures(
   fs.createReadStream(CSV_FILE)
     .pipe(csv())
     .on("data", (row: Contact) => {
+      // @ts-ignore - this is a hack to skip the first row
+      if (row["Brand*"] === "use dropdown to select a brand") return;
+
       const logoId = row["Brand*"];
       const logoUrl = LOGOS[logoId];
       const fullName = row["Full Name*"];
@@ -89,7 +100,7 @@ function generateSignatures(
           calendly,
         });
         fs.writeFile(
-          `./dist/${fullName.split(" ").join("")}.htm`,
+          `./dist/signatures/${fullName.split(" ").join("")}.htm`,
           html,
           (err) => {
             if (err) throw err;
@@ -102,8 +113,13 @@ function generateSignatures(
       console.log("Number of signatures processed", processedRows.length);
       console.log("Number of signatures skipped", skippedRows.length);
       createStatusReport(); // refactoring the results specifics to be shown in a text file, instead
+
+      // wait three seconds before zipping up the files
+      console.log("Zipping up files...");
+      setTimeout(() => {
+        zipUpFile();
+      }, 1500);
     });
-  zipUpFile();
 }
 
 const checkRequiredFields = (row: Contact) => {
@@ -162,18 +178,20 @@ function checkHeadersToBeSame() {
         data.hasOwnProperty(expectedHeader)
       );
       if (headersMatch) {
-        console.log("Headers match ::thumbs::");
+        console.log("CSV Headers match 👍");
       } else {
-        console.log("Headers do not match ::warning::");
+        throw new Error("CSV Headers do not match 🙅‍♂️");
       }
       counter = 1;
     });
 }
 
 async function zipUpFile() {
-  const folderPath = "./dist";
+  const folderPath = "./dist/signatures";
   const files = fs.readdirSync(folderPath);
-  const filesHtm = files.filter((file) => file.endsWith(".htm"));
+  const filesHtm = files.filter(
+    (file) => file.endsWith(".htm") || file.endsWith(".txt")
+  );
 
   const zip = new jszip();
 
@@ -182,14 +200,16 @@ async function zipUpFile() {
       const filePath = `${folderPath}/${file}`;
       const fileContents = fs.readFileSync(filePath);
       zip.file(file, fileContents);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error adding file ${file}: ${error.message}`);
     }
   });
 
   const buffer = await zip.generateAsync({ type: "nodebuffer" });
   fs.writeFileSync(
-    `signatures-${new Date().toISOString().split("T")[0]}.zip`,
+    `./dist/signatures-${
+      new Date().toISOString().split(":").join("_").split(".")[0] // date and time
+    }.zip`,
     buffer
   );
 }
@@ -197,9 +217,13 @@ async function zipUpFile() {
 function createStatusReport() {
   skippedRows.unshift("\nROWS/SIGNATURES SKIPPED:\n");
   processedRows.unshift("\nROWS/SIGNATURES PROCESSED SUCCESSFULLY:\n");
-  const combinedStatus = processedRows.concat(skippedRows);
-  fs.writeFile("statusReport.txt", combinedStatus.join("\n"), (err) => {
-    if (err) throw err;
-    console.log("The file has been saved");
-  });
+  const combinedStatus = skippedRows.concat(processedRows);
+  fs.writeFile(
+    "./dist/signatures/_statusReport.txt",
+    combinedStatus.join("\n"),
+    (err) => {
+      if (err) throw err;
+      console.log("Report created 👍");
+    }
+  );
 }
