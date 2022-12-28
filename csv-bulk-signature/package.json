@@ -1,0 +1,24 @@
+{
+  "name": "bulk-email-signature-generator",
+  "version": "1.0.0",
+  "repository": "git@github.com:sodiumhalogenteam/bulk-email-signature-generator.git",
+  "author": "SH",
+  "license": "MIT",
+  "scripts": {
+    "bulk": "ts src/main.ts",
+    "bulk:watch": "nodemon src/main.ts"
+  },
+  "volta": {
+    "node": "18.12.1",
+    "yarn": "1.22.19"
+  },
+  "dependencies": {
+    "@types/inline-css": "^3.0.1",
+    "@types/node": "^18.11.17",
+    "csv-parser": "^3.0.0",
+    "handlebars": "^4.7.7",
+    "inline-css": "^4.0.1",
+    "jszip": "^3.10.1",
+    "nodemon": "^2.0.20"
+  }
+}
