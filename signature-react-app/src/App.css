@@ -1,0 +1,48 @@
+a {
+    color: #4899d5;
+    font-family: helvetica, bold;
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+td {
+    vertical-align: top;
+    padding-bottom: 5px;
+}
+
+.align-bottom {
+    height: 60%;
+    vertical-align: bottom;
+}
+
+.table-height {
+    height: 100%;
+}
+
+.signature {
+    height: 100px;
+    max-width: 100%;
+    white-space: nowrap;
+    background: #FFFFFF;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.blue-bold-text {
+    color: #4899d5;
+    font-family: helvetica, bold;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.regular-text {
+    color: #A2A8AB;
+    font-family: helvetica;
+    font-size: 14px;
+}
+
+.main-image {
+    width: 120px;
+    height: 90px;
+}
