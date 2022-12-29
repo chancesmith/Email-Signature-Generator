@@ -73,20 +73,18 @@ async function generateSignatures(
   });
 
   // check if all required fields are present and log out skipped rows
-  const filteredContactsWithRequiredFields = filteredContacts.filter(
-    (contact) => {
-      const hasRequiredData = checkRequiredFields(contact);
-      if (!hasRequiredData) {
-        skippedRows.push(contact["Full Name*"]);
-      } else {
-        processedRows.push(contact["Full Name*"]);
-      }
-      return hasRequiredData;
+  const contactsWithRequiredFields = filteredContacts.filter((contact) => {
+    const hasRequiredData = checkRequiredFields(contact);
+    if (!hasRequiredData) {
+      skippedRows.push(contact["Full Name*"]);
+    } else {
+      processedRows.push(contact["Full Name*"]);
     }
-  );
+    return hasRequiredData;
+  });
 
   // generate signatures
-  filteredContactsWithRequiredFields.forEach(async (contact) => {
+  contactsWithRequiredFields.forEach(async (contact) => {
     const logoId = contact["Brand*"];
     const logoUrl = LOGOS[logoId];
     const fullName = contact["Full Name*"];
@@ -167,7 +165,7 @@ async function zipUpFile() {
     try {
       const filePath = `${folderPath}/${file}`;
       const fileContents = await fs.promises.readFile(filePath);
-      await zip.file(file, fileContents);
+      zip.file(file, fileContents);
     } catch (error: any) {
       console.error(`Error adding file ${file}: ${error.message}`);
     }
