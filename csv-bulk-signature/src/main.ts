@@ -1,14 +1,12 @@
-import csv from "csv-parser";
+import { parse } from "csv-parse";
 import fs from "fs";
 import handlebars from "handlebars";
 import inlineCss from "inline-css";
 import jszip from "jszip";
-import path from "path";
 
 // inputs
 const CSV_FILE = "./src/contacts.csv";
 const TEMPLATE = "./src/email-sig-template.html";
-
 const LOGOS = {
   "ata-cpa-advisors":
     "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
@@ -41,16 +39,18 @@ interface TemplateData {
 const skippedRows: string[] = [];
 const processedRows: string[] = [];
 
-// create ./dist/signatures if it doesn't exist
-if (!fs.existsSync("./dist")) {
-  fs.mkdirSync("./dist");
-}
-if (!fs.existsSync("./dist/signatures")) {
-  fs.mkdirSync("./dist/signatures");
+async function setupFolders() {
+  // create ./dist/signatures if it doesn't exist
+  if (!fs.existsSync("./dist")) {
+    await fs.promises.mkdir("./dist");
+  }
+  if (!fs.existsSync("./dist/signatures")) {
+    await fs.promises.mkdir("./dist/signatures");
+  }
 }
 
-fs.readFile(TEMPLATE, "utf8", async (err, og_template) => {
-  if (err) throw err;
+async function getTemplate() {
+  const og_template = await fs.promises.readFile(TEMPLATE, "utf8");
 
   const inlinedTemplate = await inlineCss(og_template, {
     url: "./",
@@ -58,68 +58,62 @@ fs.readFile(TEMPLATE, "utf8", async (err, og_template) => {
   });
 
   // Compile the template
-  const template = await handlebars.compile<TemplateData>(inlinedTemplate);
+  return handlebars.compile<TemplateData>(inlinedTemplate);
+}
 
-  // deleteAllSignatures();
-  checkHeadersToBeSame();
-  generateSignatures(template);
-});
-
-function generateSignatures(
+async function generateSignatures(
   template: HandlebarsTemplateDelegate<TemplateData>
 ) {
-  fs.createReadStream(CSV_FILE)
-    .pipe(csv())
-    .on("data", (row: Contact) => {
-      // @ts-ignore - this is a hack to skip the first row
-      if (row["Brand*"] === "use dropdown to select a brand") return;
+  const contacts = await getCSVRows(CSV_FILE);
 
-      const logoId = row["Brand*"];
-      const logoUrl = LOGOS[logoId];
-      const fullName = row["Full Name*"];
-      const credentials = row["Credentials"];
-      const title = row["Title*"];
-      const officePhone = row["Office Phone*"];
-      const mobilePhone = row["Mobile Phone"];
-      const calendly = row["Calendly Link"];
+  // filter out the first row
+  const filteredContacts = contacts.filter((contact) => {
+    // @ts-ignore - a hack to skip the first row
+    return contact["Brand*"] !== "use dropdown to select a brand";
+  });
 
-      const hasRequiredData = checkRequiredFields(row);
+  // check if all required fields are present and log out skipped rows
+  const filteredContactsWithRequiredFields = filteredContacts.filter(
+    (contact) => {
+      const hasRequiredData = checkRequiredFields(contact);
       if (!hasRequiredData) {
-        skippedRows.push(fullName);
+        skippedRows.push(contact["Full Name*"]);
       } else {
-        processedRows.push(fullName);
+        processedRows.push(contact["Full Name*"]);
       }
-      if (template) {
-        const html = template({
-          logoUrl,
-          fullName,
-          credentials,
-          title,
-          officePhone,
-          mobilePhone,
-          calendly,
-        });
-        fs.writeFile(
-          `./dist/signatures/${fullName.split(" ").join("")}.htm`,
-          html,
-          (err) => {
-            if (err) throw err;
-          }
-        );
-      }
-    })
-    .on("end", () => {
-      // show results summary
-      console.log("Number of signatures processed", processedRows.length);
-      console.log("Number of signatures skipped", skippedRows.length);
-      createStatusReport(); // refactoring the results specifics to be shown in a text file, instead
+      return hasRequiredData;
+    }
+  );
 
-      // wait three seconds before zipping up the files
-      console.log("Zipping up files...");
-      setTimeout(() => {
-        zipUpFile();
-      }, 1500);
+  // generate signatures
+  filteredContactsWithRequiredFields.forEach(async (contact) => {
+    const logoId = contact["Brand*"];
+    const logoUrl = LOGOS[logoId];
+    const fullName = contact["Full Name*"];
+    const credentials = contact["Credentials"];
+    const title = contact["Title*"];
+    const officePhone = contact["Office Phone*"];
+    const mobilePhone = contact["Mobile Phone"];
+    const calendly = contact["Calendly Link"];
+
+    const html = template({
+      logoUrl,
+      fullName,
+      credentials,
+      title,
+      officePhone,
+      mobilePhone,
+      calendly,
     });
+
+    await fs.promises.writeFile(
+      `./dist/signatures/${fullName.split(" ").join("")}.htm`,
+      html
+    );
+  });
+
+  console.log("Number of signatures processed", processedRows.length);
+  console.log("Number of signatures skipped", skippedRows.length);
 }
 
 const checkRequiredFields = (row: Contact) => {
@@ -133,28 +127,7 @@ const checkRequiredFields = (row: Contact) => {
   return false;
 };
 
-function deleteAllSignatures() {
-  const folderPath = "./dist";
-
-  fs.readdir(folderPath, (error, files) => {
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    for (const file of files) {
-      if (path.extname(file) === ".html" || path.extname(file) === ".htm") {
-        fs.unlink(path.join(folderPath, file), (error) => {
-          if (error) {
-            console.error(error);
-          }
-        });
-      }
-    }
-  });
-}
-
-function checkHeadersToBeSame() {
+async function checkHeadersToBeSame() {
   const expectedHeaders = [
     "Brand*",
     "Full Name*",
@@ -165,28 +138,23 @@ function checkHeadersToBeSame() {
     "Calendly Link",
   ];
 
-  const parser = csv();
+  const contacts = await getCSVRows(CSV_FILE);
+  const firstContact = contacts[0];
 
-  let counter = 0;
+  const headersMatch = expectedHeaders.every((expectedHeader) => {
+    return Object.keys(firstContact).includes(expectedHeader);
+  });
 
-  fs.createReadStream(CSV_FILE)
-    .pipe(parser)
-    .on("data", (data) => {
-      if (counter === 1) return;
-
-      const headersMatch = expectedHeaders.every((expectedHeader) =>
-        data.hasOwnProperty(expectedHeader)
-      );
-      if (headersMatch) {
-        console.log("CSV Headers match 👍");
-      } else {
-        throw new Error("CSV Headers do not match 🙅‍♂️");
-      }
-      counter = 1;
-    });
+  if (headersMatch) {
+    console.log("CSV Headers match 👍");
+  } else {
+    throw new Error("CSV Headers do not match 🙅‍♂️");
+  }
 }
 
 async function zipUpFile() {
+  console.log("Zipping up files...");
+
   const folderPath = "./dist/signatures";
   const files = fs.readdirSync(folderPath);
   const filesHtm = files.filter(
@@ -195,35 +163,55 @@ async function zipUpFile() {
 
   const zip = new jszip();
 
-  filesHtm.forEach((file) => {
+  filesHtm.forEach(async (file) => {
     try {
       const filePath = `${folderPath}/${file}`;
-      const fileContents = fs.readFileSync(filePath);
-      zip.file(file, fileContents);
+      const fileContents = await fs.promises.readFile(filePath);
+      await zip.file(file, fileContents);
     } catch (error: any) {
       console.error(`Error adding file ${file}: ${error.message}`);
     }
   });
 
   const buffer = await zip.generateAsync({ type: "nodebuffer" });
-  fs.writeFileSync(
-    `./dist/signatures-${
+  await fs.promises.writeFile(
+    `${folderPath}-${
       new Date().toISOString().split(":").join("_").split(".")[0] // date and time
     }.zip`,
     buffer
   );
 }
 
-function createStatusReport() {
+async function createStatusReport() {
   skippedRows.unshift("\nROWS/SIGNATURES SKIPPED:\n");
   processedRows.unshift("\nROWS/SIGNATURES PROCESSED SUCCESSFULLY:\n");
   const combinedStatus = skippedRows.concat(processedRows);
-  fs.writeFile(
+  await fs.promises.writeFile(
     "./dist/signatures/_statusReport.txt",
-    combinedStatus.join("\n"),
-    (err) => {
-      if (err) throw err;
-      console.log("Report created 👍");
-    }
+    combinedStatus.join("\n")
   );
+  console.log("Report created 👍");
 }
+
+async function getCSVRows(path: string) {
+  return new Promise((resolve: (arg: Contact[]) => void, reject) => {
+    return fs.promises.readFile(path).then((fileData) => {
+      parse(fileData, { columns: true }, function (err, rows) {
+        resolve(rows as Contact[]);
+      });
+    });
+  });
+}
+
+async function main() {
+  await setupFolders();
+  const template = await getTemplate();
+  await checkHeadersToBeSame();
+  await generateSignatures(template);
+  await createStatusReport(); // refactoring the results specifics to be shown in a text file, instead
+  await zipUpFile();
+}
+
+main().catch((err) => {
+  console.log({ err });
+});
