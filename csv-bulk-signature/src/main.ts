@@ -28,7 +28,7 @@ interface TemplateData {
  * GLOBALS
  */
 const CSV_FILE = "./src/contacts.csv";
-const CSV_EXPERATION_DAYS = 1;
+const CSV_EXPIRATION_DAYS = 1;
 const TEMPLATE_FILE = "./src/email-sig-template.html";
 const LOGOS = {
   "ata-cpa-advisors":
