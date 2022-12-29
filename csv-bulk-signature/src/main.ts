@@ -62,29 +62,11 @@ async function getTemplate() {
 }
 
 async function generateSignatures(
-  template: HandlebarsTemplateDelegate<TemplateData>
+  template: HandlebarsTemplateDelegate<TemplateData>,
+  contacts: Contact[]
 ) {
-  const contacts = await getCSVRows(CSV_FILE);
-
-  // filter out the first row
-  const filteredContacts = contacts.filter((contact) => {
-    // @ts-ignore - a hack to skip the first row
-    return contact["Brand*"] !== "use dropdown to select a brand";
-  });
-
-  // check if all required fields are present and log out skipped rows
-  const contactsWithRequiredFields = filteredContacts.filter((contact) => {
-    const hasRequiredData = checkRequiredFields(contact);
-    if (!hasRequiredData) {
-      skippedRows.push(contact["Full Name*"]);
-    } else {
-      processedRows.push(contact["Full Name*"]);
-    }
-    return hasRequiredData;
-  });
-
   // generate signatures
-  contactsWithRequiredFields.forEach(async (contact) => {
+  contacts.forEach(async (contact) => {
     const logoId = contact["Brand*"];
     const logoUrl = LOGOS[logoId];
     const fullName = contact["Full Name*"];
@@ -125,7 +107,7 @@ const checkRequiredFields = (row: Contact) => {
   return false;
 };
 
-async function checkHeadersToBeSame() {
+async function checkHeadersToBeSame(contact: Contact) {
   const expectedHeaders = [
     "Brand*",
     "Full Name*",
@@ -136,11 +118,8 @@ async function checkHeadersToBeSame() {
     "Calendly Link",
   ];
 
-  const contacts = await getCSVRows(CSV_FILE);
-  const firstContact = contacts[0];
-
   const headersMatch = expectedHeaders.every((expectedHeader) =>
-    firstContact.hasOwnProperty(expectedHeader)
+    contact.hasOwnProperty(expectedHeader)
   );
 
   if (headersMatch) {
@@ -201,11 +180,37 @@ async function getCSVRows(path: string) {
   });
 }
 
+/* filter out the first row
+ * & filter out incomplete contacts
+ */
+async function filterCompleteContacts(contacts: Contact[]) {
+  const filteredContacts = contacts.filter((contact) => {
+    // @ts-ignore - a hack to skip the first row
+    return contact["Brand*"] !== "use dropdown to select a brand";
+  });
+
+  // check if all required fields are present and log out skipped rows
+  const contactsWithRequiredFields = filteredContacts.filter((contact) => {
+    const hasRequiredData = checkRequiredFields(contact);
+    if (!hasRequiredData) {
+      skippedRows.push(contact["Full Name*"]);
+    } else {
+      processedRows.push(contact["Full Name*"]);
+    }
+    return hasRequiredData;
+  });
+
+  return contactsWithRequiredFields;
+}
+
 async function main() {
   await setupFolders();
   const template = await getTemplate();
-  await checkHeadersToBeSame();
-  await generateSignatures(template);
+
+  const contacts = await getCSVRows(CSV_FILE);
+  await checkHeadersToBeSame(contacts[0]);
+  const completeContacts = await filterCompleteContacts(contacts);
+  await generateSignatures(template, completeContacts);
   await createStatusReport(); // refactoring the results specifics to be shown in a text file, instead
   await zipUpFile();
 }
