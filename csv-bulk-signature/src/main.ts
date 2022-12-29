@@ -24,12 +24,18 @@ interface TemplateData {
   calendly: string;
 }
 
+interface StatusReport {
+  skippedRows: string[];
+  processedRows: string[];
+}
+
 /*
  * GLOBALS
  */
 const CSV_FILE = "./src/contacts.csv";
 const CSV_EXPIRATION_DAYS = 1;
 const TEMPLATE_FILE = "./src/email-sig-template.html";
+const SIGNATURES_PATH = "./dist/signatures";
 const LOGOS = {
   "ata-cpa-advisors":
     "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
@@ -38,8 +44,6 @@ const LOGOS = {
   "ata-employment-solutions":
     "https://temp-ata-signature-assets.s3.amazonaws.com/ATAES_LOGO-BT-RGB.png",
 } as const;
-const skippedRows: string[] = [];
-const processedRows: string[] = [];
 
 /*
  * MAIN FUNCTIONS
@@ -90,30 +94,19 @@ async function generateSignatures(
     });
 
     await fs.promises.writeFile(
-      `./dist/signatures/${fullName.split(" ").join("")}.htm`,
+      `${SIGNATURES_PATH}/${fullName.split(" ").join("")}.htm`,
       html
     );
   });
 
-  console.log(
-    `${skippedRows.length ? "🙅‍♂️" : "👍"} Signatures:`,
-    processedRows.length,
-    `processed and`,
-    skippedRows.length,
-    `skipped`
-  );
+  console.log("👍 Signatures generated");
 }
 
-const checkRequiredFields = (row: Contact) => {
-  if (
-    row["Brand*"].length &&
-    row["Full Name*"].length &&
-    row["Title*"].length &&
-    row["Office Phone*"].length
-  )
-    return true;
-  return false;
-};
+const checkRequiredFields = (row: Contact) =>
+  !!row["Brand*"].length &&
+  !!row["Full Name*"].length &&
+  !!row["Title*"].length &&
+  !!row["Office Phone*"].length;
 
 async function checkHeadersToBeSame(contact: Contact) {
   const expectedHeaders = [
@@ -138,16 +131,17 @@ async function checkHeadersToBeSame(contact: Contact) {
 }
 
 async function zipUpFile() {
-  const folderPath = "./dist/signatures";
-  const files = fs.readdirSync(folderPath);
-  const filesHtm = files.filter(
+  const signatureFolder = fs.readdirSync(SIGNATURES_PATH);
+  const files = signatureFolder.filter(
     (file) => file.endsWith(".htm") || file.endsWith(".txt")
   );
 
   const zip = new jszip();
 
-  filesHtm.forEach(async (file) => {
-    const fileContents = await fs.promises.readFile(`${folderPath}/${file}`);
+  files.forEach(async (file) => {
+    const fileContents = await fs.promises.readFile(
+      `${SIGNATURES_PATH}/${file}`
+    );
     try {
       zip.file(file, fileContents);
     } catch (error: any) {
@@ -158,22 +152,25 @@ async function zipUpFile() {
   const buffer = await zip.generateAsync({ type: "nodebuffer" });
 
   await fs.promises.writeFile(
-    `${folderPath}-${
+    `${SIGNATURES_PATH}-${
       new Date().toISOString().split(":").join("_").split(".")[0] // date and time
     }.zip`,
     buffer
   );
-  console.log("👍 Zip file created");
+  console.log("👍 Zip file created (signatures + report)");
 }
 
-async function createStatusReport() {
+async function createStatusReport({
+  skippedRows,
+  processedRows,
+}: StatusReport) {
   skippedRows.unshift(`\nROWS/SIGNATURES SKIPPED: (${skippedRows.length}) \n`);
   processedRows.unshift(
     `\nROWS/SIGNATURES PROCESSED SUCCESSFULLY: (${processedRows.length}) \n`
   );
   const combinedStatus = skippedRows.concat(processedRows);
   await fs.promises.writeFile(
-    "./dist/signatures/_statusReport.txt",
+    `${SIGNATURES_PATH}/_statusReport.txt`,
     combinedStatus.join("\n")
   );
   console.log("👍 Report created");
@@ -189,25 +186,22 @@ async function getCSVRows(path: string) {
   });
 }
 
-async function filterCompleteContacts(contacts: Contact[]) {
-  // filter out the first row (placeholder)
-  const filteredContacts = contacts.filter((contact) => {
-    // @ts-ignore - a hack to skip the first row
-    return contact["Brand*"] !== "use dropdown to select a brand";
-  });
+function skipFirstPlaceholderRow(contact: Contact) {
+  // @ts-ignore - a hack to skip the first row
+  return contact["Brand*"] !== "use dropdown to select a brand";
+}
 
-  // check if all required fields are present and log out skipped rows
-  const contactsWithRequiredFields = filteredContacts.filter((contact) => {
-    const hasRequiredData = checkRequiredFields(contact);
-    if (!hasRequiredData) {
-      skippedRows.push(contact["Full Name*"]);
-    } else {
-      processedRows.push(contact["Full Name*"]);
-    }
-    return hasRequiredData;
-  });
-
-  return contactsWithRequiredFields;
+function filterCompleteContacts(
+  contact: Contact,
+  { skippedRows, processedRows }: StatusReport
+) {
+  const hasRequiredData = checkRequiredFields(contact);
+  if (!hasRequiredData) {
+    skippedRows.push(contact["Full Name*"]);
+  } else {
+    processedRows.push(contact["Full Name*"]);
+  }
+  return hasRequiredData;
 }
 
 async function hasContactsFile() {
@@ -244,17 +238,36 @@ async function checkContactsFileCreatedAt() {
  * MAIN
  */
 async function main() {
+  // 1. setup
   await setupFolders();
   const template = await setupTemplate();
+  const reportLog: StatusReport = {
+    skippedRows: [],
+    processedRows: [],
+  };
 
+  // 2. check contacts file
   if (!(await hasContactsFile())) return;
   await checkContactsFileCreatedAt();
 
+  // 3. get contacts + filter
   const contacts = await getCSVRows(CSV_FILE);
   await checkHeadersToBeSame(contacts[0]);
-  const completeContacts = await filterCompleteContacts(contacts);
+  const completeContacts = contacts
+    .filter(skipFirstPlaceholderRow)
+    .filter((contacts) => filterCompleteContacts(contacts, reportLog));
+
+  console.log(
+    `${reportLog.skippedRows.length ? "🙅‍♂️" : "👍"} Signatures:`,
+    reportLog.processedRows.length,
+    `processed and`,
+    reportLog.skippedRows.length,
+    `skipped`
+  );
+
+  // 4. generate signatures + report + zip
   await generateSignatures(template, completeContacts);
-  await createStatusReport();
+  await createStatusReport(reportLog);
   await zipUpFile();
 }
 
