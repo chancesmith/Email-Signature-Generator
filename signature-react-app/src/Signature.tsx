@@ -1,5 +1,4 @@
 import { PhotoSignatureProps } from "./App";
-import Logo from "./assets/ata_cpa_advisors.png";
 
 const Signature = (props: PhotoSignatureProps) => {
   return (
@@ -25,7 +24,7 @@ const Signature = (props: PhotoSignatureProps) => {
                   <td>
                     <img
                       style={{ width: "120px", height: "90px" }}
-                      src={Logo}
+                      src={props.logo}
                       alt={""}
                     />
                   </td>
