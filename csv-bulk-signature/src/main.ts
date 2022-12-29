@@ -141,9 +141,9 @@ async function checkHeadersToBeSame() {
   const contacts = await getCSVRows(CSV_FILE);
   const firstContact = contacts[0];
 
-  const headersMatch = expectedHeaders.every((expectedHeader) => {
-    return Object.keys(firstContact).includes(expectedHeader);
-  });
+  const headersMatch = expectedHeaders.every((expectedHeader) =>
+    firstContact.hasOwnProperty(expectedHeader)
+  );
 
   if (headersMatch) {
     console.log("CSV Headers match 👍");
