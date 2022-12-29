@@ -68,7 +68,6 @@ async function generateSignatures(
   template: HandlebarsTemplateDelegate<TemplateData>,
   contacts: Contact[]
 ) {
-  // generate signatures
   contacts.forEach(async (contact) => {
     const logoId = contact["Brand*"];
     const logoUrl = LOGOS[logoId];
