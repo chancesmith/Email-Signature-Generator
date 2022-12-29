@@ -4,18 +4,6 @@ import handlebars from "handlebars";
 import inlineCss from "inline-css";
 import jszip from "jszip";
 
-// inputs
-const CSV_FILE = "./src/contacts.csv";
-const TEMPLATE = "./src/email-sig-template.html";
-const LOGOS = {
-  "ata-cpa-advisors":
-    "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
-  "ata-capital":
-    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
-  "ata-employment-solutions":
-    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAES_LOGO-BT-RGB.png",
-} as const;
-
 interface Contact {
   "Brand*": keyof typeof LOGOS;
   "Full Name*": string;
@@ -36,9 +24,25 @@ interface TemplateData {
   calendly: string;
 }
 
+/*
+ * GLOBALS
+ */
+const CSV_FILE = "./src/contacts.csv";
+const TEMPLATE = "./src/email-sig-template.html";
+const LOGOS = {
+  "ata-cpa-advisors":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
+  "ata-capital":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
+  "ata-employment-solutions":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAES_LOGO-BT-RGB.png",
+} as const;
 const skippedRows: string[] = [];
 const processedRows: string[] = [];
 
+/*
+ * MAIN FUNCTIONS
+ */
 async function setupFolders() {
   // create ./dist/signatures if it doesn't exist
   if (!fs.existsSync("./dist")) {
@@ -49,15 +53,14 @@ async function setupFolders() {
   }
 }
 
-async function getTemplate() {
-  const og_template = await fs.promises.readFile(TEMPLATE, "utf8");
+async function setupTemplate() {
+  const templateFile = await fs.promises.readFile(TEMPLATE, "utf8");
 
-  const inlinedTemplate = await inlineCss(og_template, {
+  const inlinedTemplate = await inlineCss(templateFile, {
     url: "./",
     removeHtmlSelectors: true,
   });
 
-  // Compile the template
   return handlebars.compile<TemplateData>(inlinedTemplate);
 }
 
@@ -92,8 +95,9 @@ async function generateSignatures(
     );
   });
 
-  console.log("Number of signatures processed", processedRows.length);
-  console.log("Number of signatures skipped", skippedRows.length);
+  console.log(
+    `Signatures: ${processedRows.length} processed and ${skippedRows.length} skipped`
+  );
 }
 
 const checkRequiredFields = (row: Contact) => {
@@ -118,11 +122,11 @@ async function checkHeadersToBeSame(contact: Contact) {
     "Calendly Link",
   ];
 
-  const headersMatch = expectedHeaders.every((expectedHeader) =>
+  const hasExpectedHeaders = expectedHeaders.every((expectedHeader) =>
     contact.hasOwnProperty(expectedHeader)
   );
 
-  if (headersMatch) {
+  if (hasExpectedHeaders) {
     console.log("CSV Headers match 👍");
   } else {
     throw new Error("CSV Headers do not match 🙅‍♂️");
@@ -130,8 +134,6 @@ async function checkHeadersToBeSame(contact: Contact) {
 }
 
 async function zipUpFile() {
-  console.log("Zipping up files...");
-
   const folderPath = "./dist/signatures";
   const files = fs.readdirSync(folderPath);
   const filesHtm = files.filter(
@@ -141,9 +143,8 @@ async function zipUpFile() {
   const zip = new jszip();
 
   filesHtm.forEach(async (file) => {
+    const fileContents = await fs.promises.readFile(`${folderPath}/${file}`);
     try {
-      const filePath = `${folderPath}/${file}`;
-      const fileContents = await fs.promises.readFile(filePath);
       zip.file(file, fileContents);
     } catch (error: any) {
       console.error(`Error adding file ${file}: ${error.message}`);
@@ -151,17 +152,21 @@ async function zipUpFile() {
   });
 
   const buffer = await zip.generateAsync({ type: "nodebuffer" });
+
   await fs.promises.writeFile(
     `${folderPath}-${
       new Date().toISOString().split(":").join("_").split(".")[0] // date and time
     }.zip`,
     buffer
   );
+  console.log("Zip file created 👍");
 }
 
 async function createStatusReport() {
-  skippedRows.unshift("\nROWS/SIGNATURES SKIPPED:\n");
-  processedRows.unshift("\nROWS/SIGNATURES PROCESSED SUCCESSFULLY:\n");
+  skippedRows.unshift(`\nROWS/SIGNATURES SKIPPED: (${skippedRows.length}) \n`);
+  processedRows.unshift(
+    `\nROWS/SIGNATURES PROCESSED SUCCESSFULLY: (${processedRows.length}) \n`
+  );
   const combinedStatus = skippedRows.concat(processedRows);
   await fs.promises.writeFile(
     "./dist/signatures/_statusReport.txt",
@@ -180,10 +185,8 @@ async function getCSVRows(path: string) {
   });
 }
 
-/* filter out the first row
- * & filter out incomplete contacts
- */
 async function filterCompleteContacts(contacts: Contact[]) {
+  // filter out the first row (placeholder)
   const filteredContacts = contacts.filter((contact) => {
     // @ts-ignore - a hack to skip the first row
     return contact["Brand*"] !== "use dropdown to select a brand";
@@ -203,15 +206,18 @@ async function filterCompleteContacts(contacts: Contact[]) {
   return contactsWithRequiredFields;
 }
 
+/*
+ * MAIN
+ */
 async function main() {
   await setupFolders();
-  const template = await getTemplate();
+  const template = await setupTemplate();
 
   const contacts = await getCSVRows(CSV_FILE);
   await checkHeadersToBeSame(contacts[0]);
   const completeContacts = await filterCompleteContacts(contacts);
   await generateSignatures(template, completeContacts);
-  await createStatusReport(); // refactoring the results specifics to be shown in a text file, instead
+  await createStatusReport();
   await zipUpFile();
 }
 
