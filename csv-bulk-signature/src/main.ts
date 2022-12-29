@@ -211,7 +211,6 @@ async function filterCompleteContacts(contacts: Contact[]) {
 }
 
 async function hasContactsFile() {
-  // check if the CSV file exists
   return await fs.promises
     .access(CSV_FILE)
     .then(() => {
