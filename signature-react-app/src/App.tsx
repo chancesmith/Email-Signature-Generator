@@ -19,6 +19,7 @@ import { CheckOutlined, FileCopyOutlined } from "@material-ui/icons";
 import CircularProgressWithLabel from "./CircularProgressWithLabel";
 import "./App.css";
 import ReactDOMServer from "react-dom/server";
+import DownloadIcon from "@mui/icons-material/Download";
 
 const useStyles = makeStyles((theme: Theme) =>
   // Styles for the web app
@@ -62,6 +63,9 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 250,
       height: 50,
       marginLeft: 0.7,
+    },
+    downloadButton: {
+      marginLeft: 5,
     },
   })
 );
@@ -157,8 +161,13 @@ function App() {
           >
             {state.copied ? "Copied" : "Copy to clipboard"}
           </Button>
-          <Button onClick={downloadHtmlFile} disabled={!hasRequiredFields}>
+          <Button
+            className={classes.downloadButton}
+            onClick={downloadHtmlFile}
+            disabled={!hasRequiredFields}
+          >
             Download HTML File
+            <DownloadIcon className={classes.downloadButton} />
           </Button>
         </React.Fragment>
       );
@@ -213,7 +222,10 @@ function App() {
     const fileDownloadUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = fileDownloadUrl;
-    link.setAttribute("download", "signature.html");
+    link.setAttribute(
+      "download",
+      `${state.fullName.split(" ").join("-")}-signature.htm`
+    );
     document.body.appendChild(link);
     link.click();
     link.parentNode?.removeChild(link);
