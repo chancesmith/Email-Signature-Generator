@@ -28,7 +28,8 @@ interface TemplateData {
  * GLOBALS
  */
 const CSV_FILE = "./src/contacts.csv";
-const TEMPLATE = "./src/email-sig-template.html";
+const CSV_EXPIRATION_DAYS = 1;
+const TEMPLATE_FILE = "./src/email-sig-template.html";
 const LOGOS = {
   "ata-cpa-advisors":
     "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
@@ -54,7 +55,7 @@ async function setupFolders() {
 }
 
 async function setupTemplate() {
-  const templateFile = await fs.promises.readFile(TEMPLATE, "utf8");
+  const templateFile = await fs.promises.readFile(TEMPLATE_FILE, "utf8");
 
   const inlinedTemplate = await inlineCss(templateFile, {
     url: "./",
@@ -209,12 +210,45 @@ async function filterCompleteContacts(contacts: Contact[]) {
   return contactsWithRequiredFields;
 }
 
+async function hasContactsFile() {
+  return await fs.promises
+    .access(CSV_FILE)
+    .then(() => {
+      return true;
+    })
+    .catch(() => {
+      console.log("🙅‍♂️ contacts.csv file does not exist");
+      return false;
+    });
+}
+
+async function checkContactsFileCreatedAt() {
+  const stats = await fs.promises.stat(CSV_FILE);
+  const createdAt = stats.birthtime;
+  const now = new Date();
+  const diff = Math.abs(now.getTime() - createdAt.getTime());
+  const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
+
+  if (diffDays > CSV_EXPIRATION_DAYS) {
+    console.log(
+      `🙅‍♂️ CSV contacts file is older than ${CSV_EXPIRATION_DAYS} day(s). Please update the file.`
+    );
+  } else {
+    console.log(
+      `👍 CSV contacts file is less than ${CSV_EXPIRATION_DAYS} day(s) old`
+    );
+  }
+}
+
 /*
  * MAIN
  */
 async function main() {
   await setupFolders();
   const template = await setupTemplate();
+
+  if (!(await hasContactsFile())) return;
+  await checkContactsFileCreatedAt();
 
   const contacts = await getCSVRows(CSV_FILE);
   await checkHeadersToBeSame(contacts[0]);
