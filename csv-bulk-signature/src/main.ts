@@ -96,9 +96,11 @@ async function generateSignatures(
   });
 
   console.log(
-    `${skippedRows.length ? "🙅‍♂️" : "👍"} Signatures: ${
-      processedRows.length
-    } processed and ${skippedRows.length} skipped`
+    `${skippedRows.length ? "🙅‍♂️" : "👍"} Signatures:`,
+    processedRows.length,
+    `processed and`,
+    skippedRows.length,
+    `skipped`
   );
 }
 
