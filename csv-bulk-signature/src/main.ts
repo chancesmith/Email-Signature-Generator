@@ -96,7 +96,9 @@ async function generateSignatures(
   });
 
   console.log(
-    `Signatures: ${processedRows.length} processed and ${skippedRows.length} skipped`
+    `${skippedRows.length ? "🙅‍♂️" : "👍"} Signatures: ${
+      processedRows.length
+    } processed and ${skippedRows.length} skipped`
   );
 }
 
@@ -127,9 +129,9 @@ async function checkHeadersToBeSame(contact: Contact) {
   );
 
   if (hasExpectedHeaders) {
-    console.log("CSV Headers match 👍");
+    console.log("👍 CSV Headers match");
   } else {
-    throw new Error("CSV Headers do not match 🙅‍♂️");
+    throw new Error("🙅‍♂️ CSV Headers do not match");
   }
 }
 
@@ -159,7 +161,7 @@ async function zipUpFile() {
     }.zip`,
     buffer
   );
-  console.log("Zip file created 👍");
+  console.log("👍 Zip file created");
 }
 
 async function createStatusReport() {
@@ -172,7 +174,7 @@ async function createStatusReport() {
     "./dist/signatures/_statusReport.txt",
     combinedStatus.join("\n")
   );
-  console.log("Report created 👍");
+  console.log("👍 Report created");
 }
 
 async function getCSVRows(path: string) {
