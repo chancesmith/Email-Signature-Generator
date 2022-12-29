@@ -199,6 +199,7 @@ function App() {
               <Box width={"75%"}>
                 <FormControl fullWidth>
                   <InputLabel
+                    required
                     style={{ marginLeft: 10, marginTop: 3 }}
                     id="logo-select"
                   >
