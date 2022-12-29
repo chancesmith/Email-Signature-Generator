@@ -18,6 +18,7 @@ import Signature from "./Signature";
 import { CheckOutlined, FileCopyOutlined } from "@material-ui/icons";
 import CircularProgressWithLabel from "./CircularProgressWithLabel";
 import "./App.css";
+import ReactDOMServer from "react-dom/server";
 
 const useStyles = makeStyles((theme: Theme) =>
   // Styles for the web app
@@ -103,6 +104,13 @@ function App() {
   const classes = useStyles();
   const [state, setState] = React.useState<State>(initialState);
 
+  const hasRequiredFields: boolean =
+    !!state.logo &&
+    !!state.fullName &&
+    !!state.title &&
+    !!state.phone &&
+    !!state.calendlyLink;
+
   React.useEffect(() => {
     setState(initialState);
   }, []);
@@ -144,9 +152,13 @@ function App() {
           <br />
           <Button
             onClick={copyToClipboard}
+            disabled={!hasRequiredFields}
             endIcon={state.copied ? <CheckOutlined /> : <FileCopyOutlined />}
           >
             {state.copied ? "Copied" : "Copy to clipboard"}
+          </Button>
+          <Button onClick={downloadHtmlFile} disabled={!hasRequiredFields}>
+            Download HTML File
           </Button>
         </React.Fragment>
       );
@@ -183,6 +195,28 @@ function App() {
     } catch (err) {
       console.log("Fail");
     }
+  };
+
+  const downloadHtmlFile = () => {
+    const htmlSignature = ReactDOMServer.renderToStaticMarkup(
+      <Signature
+        logo={state.logo}
+        fullName={state.fullName}
+        credentials={state.credentials}
+        title={state.title}
+        phone={state.phone}
+        mobile={state.mobile}
+        calendlyLink={state.calendlyLink}
+      />
+    );
+    const blob = new Blob([htmlSignature]);
+    const fileDownloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = fileDownloadUrl;
+    link.setAttribute("download", "signature.html");
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
   };
 
   const isStateChanged = () => {
