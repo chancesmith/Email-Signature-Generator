@@ -50,6 +50,18 @@ const useStyles = makeStyles((theme: Theme) =>
       color: "#FFDC00",
       verticalAlign: "middle",
     },
+    box: {
+      width: "75%",
+    },
+    inputLabel: {
+      marginLeft: 10,
+      marginTop: 3,
+    },
+    select: {
+      width: 250,
+      height: 50,
+      marginLeft: 0.7,
+    },
   })
 );
 
@@ -196,21 +208,17 @@ function App() {
         <Grid item xs={6}>
           <Paper className={classes.paper}>
             <form className={classes.root} noValidate autoComplete="off">
-              <Box width={"75%"}>
+              <Box className={classes.box}>
                 <FormControl fullWidth>
                   <InputLabel
+                    className={classes.inputLabel}
                     required
-                    style={{ marginLeft: 10, marginTop: 3 }}
                     id="logo-select"
                   >
                     Choose a Logo
                   </InputLabel>
                   <Select
-                    sx={{
-                      width: 250,
-                      height: 50,
-                      marginLeft: 0.7,
-                    }}
+                    className={classes.select}
                     value={state.logo}
                     placeholder="Select a Logo"
                     name="logo"
