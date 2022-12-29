@@ -229,13 +229,13 @@ async function checkContactsFileCreatedAt() {
   const diff = Math.abs(now.getTime() - createdAt.getTime());
   const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
 
-  if (diffDays > CSV_EXPERATION_DAYS) {
+  if (diffDays > CSV_EXPIRATION_DAYS) {
     console.log(
-      `🙅‍♂️ CSV contacts file is older than ${CSV_EXPERATION_DAYS} day(s). Please update the file.`
+      `🙅‍♂️ CSV contacts file is older than ${CSV_EXPIRATION_DAYS} day(s). Please update the file.`
     );
   } else {
     console.log(
-      `👍 CSV contacts file is less than ${CSV_EXPERATION_DAYS} day(s) old`
+      `👍 CSV contacts file is less than ${CSV_EXPIRATION_DAYS} day(s) old`
     );
   }
 }
