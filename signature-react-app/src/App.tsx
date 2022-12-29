@@ -1,49 +1,69 @@
-import React from 'react';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import { Button, Container, TextField, Typography } from '@material-ui/core';
-import Logo from './assets/Logo.png';
-import Signature from './Signature';
-import { CheckOutlined, FileCopyOutlined } from '@material-ui/icons';
-import CircularProgressWithLabel from './CircularProgressWithLabel';
-import './App.css';
+import React from "react";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
+import Grid from "@material-ui/core/Grid";
+import { Select, SelectChangeEvent } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@material-ui/core";
+import Logo from "./assets/Logo.png";
+import Signature from "./Signature";
+import { CheckOutlined, FileCopyOutlined } from "@material-ui/icons";
+import CircularProgressWithLabel from "./CircularProgressWithLabel";
+import "./App.css";
 
 const useStyles = makeStyles((theme: Theme) =>
   // Styles for the web app
   createStyles({
     root: {
-      '& .MuiTextField-root': {
+      "& .MuiTextField-root": {
         margin: theme.spacing(1),
       },
-      '& .label-root': {
+      "& .label-root": {
         margin: theme.spacing(1),
       },
     },
     paper: {
       padding: theme.spacing(2),
-      textAlign: 'left',
+      textAlign: "left",
       color: theme.palette.text.secondary,
     },
     centeredImage: {
-      display: 'block',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      width: '374px',
-      height: '200px',
+      display: "block",
+      marginLeft: "auto",
+      marginRight: "auto",
+      width: "374px",
+      height: "200px",
     },
     centeredText: {
-      textAlign: 'center',
+      textAlign: "center",
     },
     warningIconStyle: {
-      textAlign: 'center',
-      color: '#FFDC00',
-      verticalAlign: 'middle',
+      textAlign: "center",
+      color: "#FFDC00",
+      verticalAlign: "middle",
     },
   })
 );
 
+export const LOGOS = {
+  "ata-cpa-advisors":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATA_LOGO-CPAAdvisor-BT-RGB.png",
+  "ata-capital":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAC_LOGO-BT-RGB.png",
+  "ata-employment-solutions":
+    "https://temp-ata-signature-assets.s3.amazonaws.com/ATAES_LOGO-BT-RGB.png",
+} as const;
+
 export interface PhotoSignatureProps {
+  logo: keyof typeof LOGOS;
   fullName: string;
   credentials: string;
   title: string;
@@ -57,12 +77,13 @@ interface State extends PhotoSignatureProps {
 }
 
 const initialState: State = {
-  fullName: '',
-  credentials: '',
-  title: '',
-  phone: '',
-  mobile: '',
-  calendlyLink: '',
+  logo: "ata-capital",
+  fullName: "",
+  credentials: "",
+  title: "",
+  phone: "",
+  mobile: "",
+  calendlyLink: "",
   copied: false,
 };
 
@@ -81,6 +102,17 @@ function App() {
     }));
   };
 
+  const handleChangeLogo = (
+    event: SelectChangeEvent<
+      "ata-cpa-advisors" | "ata-capital" | "ata-employment-solutions"
+    >
+  ) => {
+    setState((prevState) => ({
+      ...prevState,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
   //signature will not show in the preview until the first bit of data is added
   const showSignature = () => {
     let progress = 0;
@@ -89,6 +121,7 @@ function App() {
       return (
         <React.Fragment>
           <Signature
+            logo={state.logo}
             fullName={state.fullName}
             credentials={state.credentials}
             title={state.title}
@@ -101,7 +134,7 @@ function App() {
             onClick={copyToClipboard}
             endIcon={state.copied ? <CheckOutlined /> : <FileCopyOutlined />}
           >
-            {state.copied ? 'Copied' : 'Copy to clipboard'}
+            {state.copied ? "Copied" : "Copy to clipboard"}
           </Button>
         </React.Fragment>
       );
@@ -109,7 +142,7 @@ function App() {
     if (progress > 0) {
       return (
         <div className={classes.centeredText}>
-          <CircularProgressWithLabel variant='determinate' value={progress} />
+          <CircularProgressWithLabel variant="determinate" value={progress} />
         </div>
       );
     } else {
@@ -118,7 +151,7 @@ function App() {
   };
 
   const copyToClipboard = () => {
-    let copyText = document.querySelector('.signature');
+    let copyText = document.querySelector(".signature");
     const range = document.createRange();
     if (copyText) {
       range.selectNode(copyText);
@@ -129,14 +162,14 @@ function App() {
       windowSelection.addRange(range);
     }
     try {
-      let successful = document.execCommand('copy');
-      console.log(successful ? 'Success' : 'Fail');
+      let successful = document.execCommand("copy");
+      console.log(successful ? "Success" : "Fail");
       setState((prevState) => ({
         ...prevState,
         copied: true,
       }));
     } catch (err) {
-      console.log('Fail');
+      console.log("Fail");
     }
   };
 
@@ -150,71 +183,102 @@ function App() {
 
   return (
     <Container>
-      <img className={classes.centeredImage} src={Logo} alt={'logo'} />
-      <Typography variant='h2' gutterBottom className={classes.centeredText}>
+      <img className={classes.centeredImage} src={Logo} alt={"logo"} />
+      <Typography variant="h2" gutterBottom className={classes.centeredText}>
         Signature generator
       </Typography>
       <Typography
-        variant='subtitle1'
+        variant="subtitle1"
         gutterBottom
         className={classes.centeredText}
       ></Typography>
       <Grid container spacing={3}>
         <Grid item xs={6}>
           <Paper className={classes.paper}>
-            <form className={classes.root} noValidate autoComplete='off'>
+            <form className={classes.root} noValidate autoComplete="off">
+              <Box width={"75%"}>
+                <FormControl fullWidth>
+                  <InputLabel
+                    style={{ marginLeft: 10, marginTop: 3 }}
+                    id="logo-select"
+                  >
+                    Choose a Logo
+                  </InputLabel>
+                  <Select
+                    sx={{
+                      width: 250,
+                      height: 50,
+                      marginLeft: 0.7,
+                    }}
+                    value={state.logo}
+                    placeholder="Select a Logo"
+                    name="logo"
+                    onChange={handleChangeLogo}
+                  >
+                    <MenuItem value={LOGOS["ata-capital"]}>
+                      ATA Capital
+                    </MenuItem>
+                    <MenuItem value={LOGOS["ata-cpa-advisors"]}>
+                      ATA Cpa Advisors
+                    </MenuItem>
+                    <MenuItem value={LOGOS["ata-employment-solutions"]}>
+                      ATA Employment Solutions
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
               <TextField
                 fullWidth={true}
                 required
-                label='Full Name'
+                label="Full Name"
                 value={state.fullName}
-                name={'fullName'}
+                name={"fullName"}
                 onChange={handleChange}
-                autoFocus={true}
+                // autoFocus={true}
               />
               <TextField
                 fullWidth={true}
-                label='Credentials'
+                label="Credentials"
                 value={state.credentials}
-                name={'credentials'}
+                name={"credentials"}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth={true}
                 required
-                label='Title'
+                label="Title"
                 value={state.title}
-                name={'title'}
+                name={"title"}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth={true}
                 required
-                label='Telephone'
+                label="Telephone"
                 value={state.phone}
-                name={'phone'}
+                name={"phone"}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth={true}
-                label='Mobile Phone'
+                label="Mobile Phone"
                 value={state.mobile}
-                name={'mobile'}
+                name={"mobile"}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth={true}
                 required
-                label='Calendly Link'
+                label="Calendly Link"
                 value={state.calendlyLink}
-                name={'calendlyLink'}
+                name={"calendlyLink"}
                 onChange={handleChange}
               />
               <br />
               <Button
                 disabled={isStateChanged()}
                 onClick={clearState}
-                color={'secondary'}
+                color={"secondary"}
               >
                 Clear
               </Button>
