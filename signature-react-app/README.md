@@ -47,6 +47,8 @@ Signature with logo
 
 ## Tips, Tricks, & Guides
 
+[ATA Signature App Walkthrough Video](https://temp-ata-signature-assets.s3.amazonaws.com/ATA-Signature-Generator-Walkthrough.mp4)
+
 [Outlook 2020 Signature Guide](https://www.hubspot.com/email-signature-generator/add-signature-outlook)
 
 [Outlook 2016 Video](https://temp-ata-signature-assets.s3.amazonaws.com/add-file-signature-outlook-2016.mp4)
