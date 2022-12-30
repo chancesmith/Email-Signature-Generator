@@ -34,11 +34,6 @@ interface TemplateData {
   calendly: string;
 }
 
-interface StatusReport {
-  skippedRows: string[];
-  processedRows: string[];
-}
-
 /*
  * MAIN FUNCTIONS
  */
