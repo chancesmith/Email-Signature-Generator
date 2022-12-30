@@ -12,6 +12,7 @@ interface Contact {
   "Office Phone*": string;
   "Mobile Phone": string;
   "Calendly Link": string;
+  skip?: boolean;
 }
 
 interface TemplateData {
@@ -74,6 +75,8 @@ async function generateSignatures(
   contacts: Contact[]
 ) {
   contacts.forEach(async (contact) => {
+    if (contact.skip) return; // skip if contact is missing required fields
+
     const logoId = contact["Brand*"];
     const logoUrl = LOGOS[logoId];
     const fullName = contact["Full Name*"];
@@ -160,10 +163,30 @@ async function zipUpFile() {
   console.log("👍 Zip file created (signatures + report)");
 }
 
-async function createStatusReport({
-  skippedRows,
-  processedRows,
-}: StatusReport) {
+async function createStatusReport(contacts: Contact[]) {
+  const skippedRows: string[] = [];
+  const processedRows: string[] = [];
+
+  // 1. collect skipped and processed rows
+  contacts.forEach((contact, index) => {
+    const hasRequiredData = checkRequiredFields(contact);
+    if (!hasRequiredData) {
+      skippedRows.push(contact["Full Name*"]);
+    } else {
+      processedRows.push(contact["Full Name*"]);
+    }
+  });
+
+  // 2. report in console
+  console.log(
+    `${skippedRows.length ? "🙅‍♂️" : "👍"} Signatures:`,
+    processedRows.length,
+    `processed and`,
+    skippedRows.length,
+    `skipped`
+  );
+
+  // 3. report in file
   skippedRows.unshift(`\nROWS/SIGNATURES SKIPPED: (${skippedRows.length}) \n`);
   processedRows.unshift(
     `\nROWS/SIGNATURES PROCESSED SUCCESSFULLY: (${processedRows.length}) \n`
@@ -173,15 +196,16 @@ async function createStatusReport({
     `${SIGNATURES_PATH}/_statusReport.txt`,
     combinedStatus.join("\n")
   );
+
   console.log("👍 Report created");
 }
 
 async function getCSVRows(path: string) {
-  return new Promise((resolve: (arg: Contact[]) => void, reject) => {
-    return fs.promises.readFile(path).then((fileData) => {
-      parse(fileData, { columns: true }, function (err, rows) {
-        resolve(rows as Contact[]);
-      });
+  return new Promise(async (resolve: (arg: Contact[]) => void) => {
+    const file = await fs.promises.readFile(path);
+
+    parse(file, { columns: true }, function (err, rows) {
+      resolve(rows as Contact[]);
     });
   });
 }
@@ -189,19 +213,6 @@ async function getCSVRows(path: string) {
 function skipFirstPlaceholderRow(contact: Contact) {
   // @ts-ignore - a hack to skip the first row
   return contact["Brand*"] !== "use dropdown to select a brand";
-}
-
-function filterCompleteContacts(
-  contact: Contact,
-  { skippedRows, processedRows }: StatusReport
-) {
-  const hasRequiredData = checkRequiredFields(contact);
-  if (!hasRequiredData) {
-    skippedRows.push(contact["Full Name*"]);
-  } else {
-    processedRows.push(contact["Full Name*"]);
-  }
-  return hasRequiredData;
 }
 
 async function hasContactsFile() {
@@ -241,10 +252,6 @@ async function main() {
   // 1. setup
   await setupFolders();
   const template = await setupTemplate();
-  const reportLog: StatusReport = {
-    skippedRows: [],
-    processedRows: [],
-  };
 
   // 2. check contacts file
   if (!(await hasContactsFile())) return;
@@ -253,21 +260,16 @@ async function main() {
   // 3. get contacts + filter
   const contacts = await getCSVRows(CSV_FILE);
   await checkHeadersToBeSame(contacts[0]);
-  const completeContacts = contacts
+  const contactsWithNewProps = contacts
     .filter(skipFirstPlaceholderRow)
-    .filter((contacts) => filterCompleteContacts(contacts, reportLog));
-
-  console.log(
-    `${reportLog.skippedRows.length ? "🙅‍♂️" : "👍"} Signatures:`,
-    reportLog.processedRows.length,
-    `processed and`,
-    reportLog.skippedRows.length,
-    `skipped`
-  );
+    .map((contact) => ({
+      ...contact,
+      skip: !checkRequiredFields(contact),
+    }));
 
   // 4. generate signatures + report + zip
-  await generateSignatures(template, completeContacts);
-  await createStatusReport(reportLog);
+  await generateSignatures(template, contactsWithNewProps);
+  await createStatusReport(contactsWithNewProps);
   await zipUpFile();
 }
 
