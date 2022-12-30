@@ -1,6 +1,5 @@
 {
   "description": "A simple email signature generator app (SPA) made with React",
-  "homepage": "https://ata-signature-generator.netlify.app/",
   "keywords": [
     "spa",
     "react",
