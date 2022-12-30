@@ -14,7 +14,7 @@ In the project directory, you can run:
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
+** The page may need to be reloaded if you make edits. ** \
 You will also see any lint errors in the console.
 
 ### `yarn test`
@@ -33,18 +33,22 @@ I've used Node v12.14.1
 
 ## How it works
 
-Just input your data and you'll get the result.
+Just input your data and you'll get the result. Note that required fields are marked with an '\*'. After all required fields have been filled, you can copy the signature to the clipboard, or download the signature html file to your computer.
 
 ## Screenshots
 
 Main page
 
-![Main page](screenshots/Main.png?raw=true "Main page")
+![Main page](https://temp-ata-signature-assets.s3.amazonaws.com/main-page.png "Main page")
 
 Signature with logo
 
-![Signature with logo](screenshots/NoPhotoSignature.png?raw=true "Signature with logo")
+![Signature with logo](https://temp-ata-signature-assets.s3.amazonaws.com/signature-with-logo.png "Signature with logo")
 
-Signature with photo
+## Tips, Tricks, & Guides
 
-![Signature with logo](screenshots/PhotoSignature.png?raw=true "Signature with logo")# ATA-signature-generator
+[Outlook 2020 Signature Guide](https://www.hubspot.com/email-signature-generator/add-signature-outlook)
+
+[Outlook 2016 Video](https://temp-ata-signature-assets.s3.amazonaws.com/add-file-signature-outlook-2016.mp4)
+
+![Outlook 2016 Screenshot](https://temp-ata-signature-assets.s3.amazonaws.com/edit-signatures-outlook-2016.png "Signature with logo")
