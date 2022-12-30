@@ -1,8 +1,3 @@
-import React from "react";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
-import { Select, SelectChangeEvent } from "@mui/material";
 import {
   Box,
   Button,
@@ -13,11 +8,15 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import Logo from "./assets/Logo.png";
-import Signature from "./Signature";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
 import { CheckOutlined, FileCopyOutlined } from "@material-ui/icons";
-import CircularProgressWithLabel from "./CircularProgressWithLabel";
+import { Select, SelectChangeEvent } from "@mui/material";
+import React from "react";
 import "./App.css";
+import CircularProgressWithLabel from "./CircularProgressWithLabel";
+import Signature from "./Signature";
 
 const useStyles = makeStyles((theme: Theme) =>
   // Styles for the web app
@@ -195,7 +194,11 @@ function App() {
 
   return (
     <Container>
-      <img className={classes.centeredImage} src={Logo} alt={"logo"} />
+      <img
+        className={classes.centeredImage}
+        src={"https://temp-ata-signature-assets.s3.amazonaws.com/Logo.png"}
+        alt={"logo"}
+      />
       <Typography variant="h2" gutterBottom className={classes.centeredText}>
         Signature generator
       </Typography>
