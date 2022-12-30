@@ -21,7 +21,6 @@ export async function checkFileCountWithCsvCount(
     console.error(
       `\u001b[31m\u001b[1mError: \u001b[0m\u001b[31mSignatures count does not match contacts count. Please check the contacts.csv file or zipFilePath() and try again.\u001b[0m`
     );
-    return;
   } else {
     console.log("👍 Signatures count matches CSV count");
   }
