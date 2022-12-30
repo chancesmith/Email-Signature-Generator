@@ -4,35 +4,21 @@ import handlebars from "handlebars";
 import inlineCss from "inline-css";
 import jszip from "jszip";
 import {
-  LOGOS,
-  TEMPLATE_FILE,
-  SIGNATURES_PATH,
-  ZIP_FILE,
-  STATUS_REPORT_FILE,
   CSV_FILE,
-  CSV_EXPIRATION_DAYS,
+  LOGOS,
+  SIGNATURES_PATH,
+  STATUS_REPORT_FILE,
+  TEMPLATE_FILE,
+  ZIP_FILE,
 } from "./config";
-
-interface Contact {
-  "Brand*": keyof typeof LOGOS;
-  "Full Name*": string;
-  Credentials: string;
-  "Title*": string;
-  "Office Phone*": string;
-  "Mobile Phone": string;
-  "Calendly Link": string;
-  skip?: boolean;
-}
-
-interface TemplateData {
-  logoUrl: string;
-  fullName: string;
-  credentials: string;
-  title: string;
-  officePhone: string;
-  mobilePhone: string;
-  calendly: string;
-}
+import {
+  checkContactsFileCreatedAt,
+  checkFileCountWithCsvCount,
+  checkHeadersToBeSame,
+  checkZipIsNotEmpty,
+  hasContactsFile,
+} from "./safety-checks";
+import { TemplateData, Contact } from "./types";
 
 /*
  * MAIN FUNCTIONS
@@ -88,28 +74,6 @@ const checkRequiredFields = (row: Contact) =>
   !!row["Title*"].length &&
   !!row["Office Phone*"].length;
 
-async function checkHeadersToBeSame(contact: Contact) {
-  const expectedHeaders = [
-    "Brand*",
-    "Full Name*",
-    "Credentials",
-    "Title*",
-    "Office Phone*",
-    "Mobile Phone",
-    "Calendly Link",
-  ];
-
-  const hasExpectedHeaders = expectedHeaders.every((expectedHeader) =>
-    contact.hasOwnProperty(expectedHeader)
-  );
-
-  if (hasExpectedHeaders) {
-    console.log("👍 CSV Headers match");
-  } else {
-    throw new Error("🔴 CSV Headers do not match");
-  }
-}
-
 async function zipUpFile() {
   const signatureFolder = await fs.promises.readdir(SIGNATURES_PATH);
   const files = signatureFolder.filter(
@@ -130,6 +94,7 @@ async function zipUpFile() {
     await fs.promises.writeFile(ZIP_FILE, buffer);
 
     console.log("👍 Zip file created (signatures + report)");
+    console.log("🗜", ZIP_FILE);
   } catch (error) {
     console.error(error);
   }
@@ -183,45 +148,6 @@ function skipFirstPlaceholderRow(contact: Contact) {
   return contact["Brand*"] !== "use dropdown to select a brand";
 }
 
-async function hasContactsFile() {
-  return await fs.promises
-    .access(CSV_FILE)
-    .then(() => {
-      return true;
-    })
-    .catch(() => {
-      console.log("🔴 contacts.csv file does not exist");
-      return false;
-    });
-}
-
-async function checkContactsFileCreatedAt() {
-  const stats = await fs.promises.stat(CSV_FILE);
-  const createdAt = stats.birthtime;
-  const now = new Date();
-  const diff = Math.abs(now.getTime() - createdAt.getTime());
-  const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
-
-  if (diffDays > CSV_EXPIRATION_DAYS) {
-    console.log(
-      `🔴 CSV contacts file is older than ${CSV_EXPIRATION_DAYS} day(s). Please update the file.`
-    );
-  } else {
-    console.log(
-      `👍 CSV contacts file is less than ${CSV_EXPIRATION_DAYS} day(s) old`
-    );
-  }
-}
-
-async function checkZipIsNotEmpty(zipFilePath: string) {
-  const stats = await fs.promises.stat(zipFilePath);
-  if (stats.size <= 22) {
-    console.error(
-      `\u001b[31m\u001b[1mError: \u001b[0m\u001b[31mZip file is empty. Please check the contacts.csv file or zipFilePath() and try again.\u001b[0m`
-    );
-  }
-}
-
 /*
  * MAIN
  */
@@ -244,9 +170,14 @@ async function main() {
       skip: !checkRequiredFields(contact),
     }));
 
-  // 4. generate signatures + report + zip
+  // 4. generate signatures
   await generateSignatures(template, contactsWithNewProps);
+  await checkFileCountWithCsvCount(contactsWithNewProps);
+
+  // 5. create report
   await createStatusReport(contactsWithNewProps);
+
+  // 6. zip up files
   await zipUpFile();
   await checkZipIsNotEmpty(ZIP_FILE);
 }
