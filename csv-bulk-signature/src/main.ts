@@ -142,9 +142,7 @@ async function zipUpFile() {
   const zip = new jszip();
 
   files.forEach(async (file) => {
-    const fileContents = await fs.promises.readFile(
-      `${SIGNATURES_PATH}/${file}`
-    );
+    const fileContents = fs.readFileSync(`${SIGNATURES_PATH}/${file}`);
     try {
       zip.file(file, fileContents);
     } catch (error: any) {
