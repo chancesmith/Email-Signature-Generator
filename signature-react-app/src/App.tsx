@@ -40,8 +40,8 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "block",
       marginLeft: "auto",
       marginRight: "auto",
-      width: "374px",
-      height: "200px",
+      marginTop: "1rem",
+      width: "150px",
     },
     centeredText: {
       textAlign: "center",
