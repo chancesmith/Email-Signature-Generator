@@ -134,7 +134,7 @@ async function checkHeadersToBeSame(contact: Contact) {
 }
 
 async function zipUpFile() {
-  const signatureFolder = fs.readdirSync(SIGNATURES_PATH);
+  const signatureFolder = await fs.promises.readdir(SIGNATURES_PATH);
   const files = signatureFolder.filter(
     (file) => file.endsWith(".htm") || file.endsWith(".txt")
   );
@@ -154,13 +154,14 @@ async function zipUpFile() {
 
   const buffer = await zip.generateAsync({ type: "nodebuffer" });
 
-  await fs.promises.writeFile(
-    `${SIGNATURES_PATH}-${
-      new Date().toISOString().split(":").join("_").split(".")[0] // date and time
-    }.zip`,
-    buffer
-  );
+  const zipFilePath = `${SIGNATURES_PATH}-${
+    new Date().toISOString().split(":").join("_").split(".")[0] // date and time
+  }.zip`;
+
+  await fs.promises.writeFile(zipFilePath, buffer);
   console.log("👍 Zip file created (signatures + report)");
+
+  return zipFilePath;
 }
 
 async function createStatusReport(contacts: Contact[]) {
@@ -245,6 +246,15 @@ async function checkContactsFileCreatedAt() {
   }
 }
 
+async function checkZipIsNotEmpty(zipFilePath: string) {
+  const stats = await fs.promises.stat(zipFilePath);
+  if (stats.size <= 22) {
+    console.error(
+      `\u001b[31m\u001b[1mError: \u001b[0m\u001b[31mZip file is empty. Please check the contacts.csv file or zipFilePath and try again.\u001b[0m`
+    );
+  }
+}
+
 /*
  * MAIN
  */
@@ -270,7 +280,8 @@ async function main() {
   // 4. generate signatures + report + zip
   await generateSignatures(template, contactsWithNewProps);
   await createStatusReport(contactsWithNewProps);
-  await zipUpFile();
+  const zipFilePath = await zipUpFile();
+  await checkZipIsNotEmpty(zipFilePath);
 }
 
 main().catch((err) => {
