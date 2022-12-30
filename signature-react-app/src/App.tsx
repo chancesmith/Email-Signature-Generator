@@ -64,9 +64,6 @@ const useStyles = makeStyles((theme: Theme) =>
       height: 50,
       marginLeft: 0.7,
     },
-    downloadButton: {
-      marginLeft: 5,
-    },
   })
 );
 
@@ -162,12 +159,11 @@ function App() {
             {state.copied ? "Copied" : "Copy to clipboard"}
           </Button>
           <Button
-            className={classes.downloadButton}
+            endIcon={<DownloadIcon />}
             onClick={downloadHtmlFile}
             disabled={!hasRequiredFields}
           >
             Download HTML File
-            <DownloadIcon className={classes.downloadButton} />
           </Button>
         </React.Fragment>
       );
@@ -222,10 +218,7 @@ function App() {
     const fileDownloadUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = fileDownloadUrl;
-    link.setAttribute(
-      "download",
-      `${state.fullName.split(" ").join("-")}-signature.htm`
-    );
+    link.setAttribute("download", `${state.fullName.split(" ").join("")}.htm`);
     document.body.appendChild(link);
     link.click();
     link.parentNode?.removeChild(link);
