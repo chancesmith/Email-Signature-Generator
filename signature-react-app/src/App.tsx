@@ -270,7 +270,7 @@ function App() {
                       ATA Capital
                     </MenuItem>
                     <MenuItem value={LOGOS["ata-cpa-advisors"]}>
-                      ATA Cpa Advisors
+                      ATA CPA Advisors
                     </MenuItem>
                     <MenuItem value={LOGOS["ata-employment-solutions"]}>
                       ATA Employment Solutions
