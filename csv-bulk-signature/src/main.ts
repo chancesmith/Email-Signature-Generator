@@ -64,6 +64,7 @@ async function generateSignatures(
   template: HandlebarsTemplateDelegate<TemplateData>,
   contacts: Contact[]
 ) {
+  console.log("📝 Generating signatures...");
   for await (const contact of contacts) {
     if (contact.skip) return; // skip if missing required fields
 
@@ -76,14 +77,34 @@ async function generateSignatures(
       mobilePhone: contact["Mobile Phone"],
       calendly: contact["Calendly Link"],
     });
-    const nameSplit = contact["Full Name*"].split(" ");
-    const firstInitial = nameSplit[0].charAt(0);
-    const lastName = nameSplit[1];
-    const fileName = `${firstInitial}${lastName}`;
-    await fs.promises.writeFile(`${SIGNATURES_PATH}/${fileName}.htm`, html);
+
+    const fileName = getFileName(contact);
+    await createSignatureFile(fileName, contact, html);
   }
 
   console.log("👍 Signatures generated");
+}
+
+async function createSignatureFile(
+  fileName: string,
+  contact: Contact,
+  html: string
+) {
+  if (fs.existsSync(`${SIGNATURES_PATH}/${fileName}.htm`)) {
+    console.error(
+      `  🔴 ERROR: ${contact["Full Name*"]} already exists. Remove duplicates from CSV and try again.`
+    );
+  } else {
+    await fs.promises.writeFile(`${SIGNATURES_PATH}/${fileName}.htm`, html);
+  }
+}
+
+function getFileName(contact: Contact) {
+  const nameSplit = contact["Full Name*"].split(" ");
+  const firstInitial = nameSplit[0].charAt(0);
+  const lastName = nameSplit[1];
+  const fileName = `${firstInitial}${lastName}`;
+  return fileName;
 }
 
 async function zipUpFile() {
