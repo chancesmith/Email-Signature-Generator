@@ -60,8 +60,10 @@ async function generateSignatures(
       mobilePhone: contact["Mobile Phone"],
       calendly: contact["Calendly Link"],
     });
-
-    const fileName = contact["Full Name*"].split(" ").join("");
+    const nameSplit = contact["Full Name*"].split(" ");
+    const firstInitial = nameSplit[0].charAt(0);
+    const lastName = nameSplit[1];
+    const fileName = `${firstInitial}${lastName}`;
     await fs.promises.writeFile(`${SIGNATURES_PATH}/${fileName}.htm`, html);
   }
 
