@@ -26,7 +26,7 @@ const Signature = (props: PhotoSignatureProps) => {
                       <img
                         style={{ width: "120px", height: "90px" }}
                         src={props.logo}
-                        alt={""}
+                        alt={"ata-logo"}
                       />
                     </a>
                   </td>
