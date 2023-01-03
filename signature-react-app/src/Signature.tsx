@@ -22,11 +22,13 @@ const Signature = (props: PhotoSignatureProps) => {
               <tbody>
                 <tr>
                   <td>
-                    <img
-                      style={{ width: "120px", height: "90px" }}
-                      src={props.logo}
-                      alt={""}
-                    />
+                    <a href="https://ata.cpa" target="_blank" rel="noreferrer">
+                      <img
+                        style={{ width: "120px", height: "90px" }}
+                        src={props.logo}
+                        alt={""}
+                      />
+                    </a>
                   </td>
                 </tr>
               </tbody>
