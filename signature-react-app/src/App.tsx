@@ -309,6 +309,7 @@ function App() {
                 fullWidth={true}
                 required
                 label="Telephone"
+                placeholder="777.444.5555"
                 value={state.phone}
                 name={"phone"}
                 onChange={handleChange}
