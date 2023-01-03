@@ -213,11 +213,14 @@ function App() {
         calendlyLink={state.calendlyLink}
       />
     );
+    const nameSplit = state.fullName.split(" ");
+    const firstInitial = nameSplit[0].charAt(0);
+    const lastName = nameSplit[1];
     const blob = new Blob([htmlSignature]);
     const fileDownloadUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = fileDownloadUrl;
-    link.setAttribute("download", `${state.fullName.split(" ").join("")}.htm`);
+    link.setAttribute("download", `${firstInitial}${lastName}.htm`);
     document.body.appendChild(link);
     link.click();
     link.parentNode?.removeChild(link);
