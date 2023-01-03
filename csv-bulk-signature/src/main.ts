@@ -24,12 +24,28 @@ import { TemplateData, Contact } from "./types";
  * MAIN FUNCTIONS
  */
 async function setupFolders() {
-  // create ./dist/signatures if it doesn't exist
-  if (!fs.existsSync("./dist")) {
-    await fs.promises.mkdir("./dist");
+  await createDirIfMissing("./dist");
+  await createDirIfMissing("./dist/signatures");
+  await deleteOldSignatures();
+}
+
+async function createDirIfMissing(path: string) {
+  if (!fs.existsSync(path)) {
+    await fs.promises.mkdir(path);
   }
-  if (!fs.existsSync("./dist/signatures")) {
-    await fs.promises.mkdir("./dist/signatures");
+}
+
+async function deleteOldSignatures() {
+  const signaturesFolder = await fs.promises.readdir(SIGNATURES_PATH);
+  if (signaturesFolder.length > 0) {
+    let count = 0;
+    for await (const file of signaturesFolder) {
+      await fs.promises.unlink(`${SIGNATURES_PATH}/${file}`);
+
+      count++;
+    }
+
+    console.log(`🗑️  CLEAN UP: Deleted ${count} old signatures`);
   }
 }
 
@@ -69,12 +85,6 @@ async function generateSignatures(
 
   console.log("👍 Signatures generated");
 }
-
-const checkRequiredFields = (row: Contact) =>
-  !!row["Brand*"].length &&
-  !!row["Full Name*"].length &&
-  !!row["Title*"].length &&
-  !!row["Office Phone*"].length;
 
 async function zipUpFile() {
   const signatureFolder = await fs.promises.readdir(SIGNATURES_PATH);
@@ -165,12 +175,16 @@ async function main() {
   // 3. get contacts + filter
   const contacts = await getCSVRows(CSV_FILE);
   await checkHeadersToBeSame(contacts[0]);
+
+  const checkRequiredFields = (row: Contact) =>
+    !!row["Brand*"].length &&
+    !!row["Full Name*"].length &&
+    !!row["Title*"].length &&
+    !!row["Office Phone*"].length;
+
   const contactsWithNewProps = contacts
     .filter(skipFirstPlaceholderRow)
-    .map((contact) => ({
-      ...contact,
-      skip: !checkRequiredFields(contact),
-    }));
+    .map((contact) => ({ ...contact, skip: !checkRequiredFields(contact) }));
 
   // 4. generate signatures
   await generateSignatures(template, contactsWithNewProps);
