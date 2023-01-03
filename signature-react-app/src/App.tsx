@@ -239,7 +239,7 @@ function App() {
       <img
         className={classes.centeredImage}
         src={"https://temp-ata-signature-assets.s3.amazonaws.com/Logo.png"}
-        alt={"logo"}
+        alt={"ata-logo"}
       />
       <Typography variant="h2" gutterBottom className={classes.centeredText}>
         Signature generator
