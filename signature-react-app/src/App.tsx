@@ -105,11 +105,7 @@ function App() {
   const [state, setState] = React.useState<State>(initialState);
 
   const hasRequiredFields: boolean =
-    !!state.logo &&
-    !!state.fullName &&
-    !!state.title &&
-    !!state.phone &&
-    !!state.calendlyLink;
+    !!state.logo && !!state.fullName && !!state.title && !!state.phone;
 
   React.useEffect(() => {
     setState(initialState);
@@ -324,7 +320,6 @@ function App() {
               />
               <TextField
                 fullWidth={true}
-                required
                 label="Calendly Link"
                 value={state.calendlyLink}
                 name={"calendlyLink"}
