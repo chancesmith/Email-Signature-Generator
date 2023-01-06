@@ -90,9 +90,19 @@ async function createSignatureFile(
   contact: Contact,
   html: string
 ) {
+  const fullName = contact["Full Name*"];
   if (fs.existsSync(`${SIGNATURES_PATH}/${fileName}.htm`)) {
+    const lowercaseFullName = fullName.toLowerCase();
+    // remove space from name
+    const fullNameFileName = lowercaseFullName.replace(/\s/g, "_");
+
+    await fs.promises.writeFile(
+      `${SIGNATURES_PATH}/${fullNameFileName}.htm`,
+      html
+    );
+
     console.error(
-      `  🔴 ERROR: ${contact["Full Name*"]} already exists. Remove duplicates from CSV and try again.`
+      `  🟡 WARNING: For ${fullName}, ${fileName}.htm already exists. Instead ${fullNameFileName}.htm was created.`
     );
   } else {
     await fs.promises.writeFile(`${SIGNATURES_PATH}/${fileName}.htm`, html);
@@ -104,7 +114,8 @@ function getFileName(contact: Contact) {
   const firstInitial = nameSplit[0].charAt(0);
   const lastName = nameSplit[1];
   const fileName = `${firstInitial}${lastName}`;
-  return fileName;
+  const lowerCaseFullName = fileName.toLowerCase();
+  return lowerCaseFullName;
 }
 
 async function zipUpFile() {
