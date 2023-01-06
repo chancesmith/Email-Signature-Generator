@@ -94,6 +94,8 @@ async function createSignatureFile(
   const { fullNameFileName, fullName } = getFullNameFileName(contact);
   const filePath = `${SIGNATURES_PATH}/${fileName}.htm`;
   const fullNameFilePath = `${SIGNATURES_PATH}/${fullNameFileName}.htm`;
+
+  // check if files exists
   const hasFilePath = await isPath(filePath);
   const hasFullNameFile = await isPath(fullNameFilePath);
 
