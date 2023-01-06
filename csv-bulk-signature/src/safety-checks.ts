@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import { SIGNATURES_PATH, CSV_FILE, CSV_EXPIRATION_DAYS } from "./config";
 import { Contact } from "./types";
 
@@ -6,7 +6,7 @@ export async function checkFileCountWithCsvCount(
   contactsWithNewProps: Contact[]
 ) {
   // get files in signatures folder
-  const signaturesFolder = await fs.promises.readdir(SIGNATURES_PATH);
+  const signaturesFolder = await fs.readdir(SIGNATURES_PATH);
   const signatures = signaturesFolder.filter((file) => file.endsWith(".htm"));
   const signaturesCount = signatures.length;
 
@@ -26,20 +26,24 @@ export async function checkFileCountWithCsvCount(
   }
 }
 
-export async function hasContactsFile() {
-  return await fs.promises
-    .access(CSV_FILE)
-    .then(() => {
-      return true;
-    })
+export async function isPath(path: string, catchCallback?: () => void) {
+  return await fs
+    .stat(path)
+    .then(() => true)
     .catch(() => {
-      console.log("🔴 contacts.csv file does not exist");
+      if (catchCallback) catchCallback();
       return false;
     });
 }
 
+export async function hasContactsFile() {
+  return await isPath(CSV_FILE, () =>
+    console.log("🔴 contacts.csv file does not exist")
+  );
+}
+
 export async function checkContactsFileCreatedAt() {
-  const stats = await fs.promises.stat(CSV_FILE);
+  const stats = await fs.stat(CSV_FILE);
   const createdAt = stats.birthtime;
   const now = new Date();
   const diff = Math.abs(now.getTime() - createdAt.getTime());
@@ -57,7 +61,7 @@ export async function checkContactsFileCreatedAt() {
 }
 
 export async function checkZipIsNotEmpty(zipFilePath: string) {
-  const stats = await fs.promises.stat(zipFilePath);
+  const stats = await fs.stat(zipFilePath);
   if (stats.size <= 22) {
     console.error(
       `\u001b[31m\u001b[1mError: \u001b[0m\u001b[31mZip file is empty. Please check the contacts.csv file or zipFilePath() and try again.\u001b[0m`
