@@ -90,23 +90,44 @@ async function createSignatureFile(
   contact: Contact,
   html: string
 ) {
-  const fullName = contact["Full Name*"];
-  if (fs.existsSync(`${SIGNATURES_PATH}/${fileName}.htm`)) {
-    const lowercaseFullName = fullName.toLowerCase();
-    // remove space from name
-    const fullNameFileName = lowercaseFullName.replace(/\s/g, "_");
+  const { fullNameFileName, fullName } = getFullNameFileName(contact);
+  const filePath = `${SIGNATURES_PATH}/${fileName}.htm`;
+  const fullNameFilePath = `${SIGNATURES_PATH}/${fullNameFileName}.htm`;
 
-    await fs.promises.writeFile(
-      `${SIGNATURES_PATH}/${fullNameFileName}.htm`,
-      html
-    );
-
-    console.error(
-      `  🟡 WARNING: For ${fullName}, ${fileName}.htm already exists. Instead ${fullNameFileName}.htm was created.`
-    );
-  } else {
-    await fs.promises.writeFile(`${SIGNATURES_PATH}/${fileName}.htm`, html);
+  if (!fs.existsSync(filePath)) {
+    return createFile(filePath, html);
   }
+
+  if (!fs.existsSync(fullNameFilePath)) {
+    return createFileWithFullName(fullNameFilePath, fullName, fileName, html);
+  }
+
+  console.error(
+    `  🔴 ERROR: For ${fullName}, ${fileName}.htm and ${fullNameFileName}.htm already exist.`
+  );
+}
+
+async function createFile(filePath: string, html: string) {
+  await fs.promises.writeFile(filePath, html);
+}
+
+async function createFileWithFullName(
+  fullNameFilePath: string,
+  fullName: string,
+  fileName: string,
+  html: string
+) {
+  await fs.promises.writeFile(fullNameFilePath, html);
+  console.error(
+    `  🟡 WARNING: For ${fullName}, ${fileName}.htm already exists. Instead ${fileName}.htm was created.`
+  );
+}
+
+function getFullNameFileName(contact: Contact) {
+  const fullName = contact["Full Name*"];
+  const lowercaseFullName = fullName.toLowerCase();
+  const fullNameFileName = lowercaseFullName.replace(/\s/g, "_");
+  return { fullNameFileName, fullName };
 }
 
 function getFileName(contact: Contact) {
