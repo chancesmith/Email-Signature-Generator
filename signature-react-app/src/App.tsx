@@ -209,7 +209,8 @@ function App() {
         calendlyLink={state.calendlyLink}
       />
     );
-    const nameSplit = state.fullName.split(" ");
+    const lowerCaseName = state.fullName.toLowerCase();
+    const nameSplit = lowerCaseName.split(" ");
     const firstInitial = nameSplit[0].charAt(0);
     const lastName = nameSplit[1];
     const blob = new Blob([htmlSignature]);
