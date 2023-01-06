@@ -117,7 +117,7 @@ async function createFileWithFullName(
   fileName: string,
   html: string
 ) {
-  await fs.promises.writeFile(fullNameFilePath, html);
+  await createFile(fullNameFilePath, html);
   console.error(
     `  🟡 WARNING: For ${fullName}, ${fileName}.htm already exists. Instead ${fileName}.htm was created.`
   );
