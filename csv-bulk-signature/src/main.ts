@@ -128,17 +128,21 @@ async function createFileWithFullName(
   );
 }
 
-function getFullNameFileName(contact: Contact) {
+export function getFullNameFileName(contact: Contact) {
   const fullName = contact["Full Name*"];
   const lowercaseFullName = fullName.toLowerCase();
   const fullNameFileName = lowercaseFullName.replace(/\s/g, "_");
   return { fullNameFileName, fullName };
 }
 
-function getFileName(contact: Contact) {
+export function getFileName(contact: Contact) {
   const nameSplit = contact["Full Name*"].split(" ");
   const firstInitial = nameSplit[0].charAt(0);
-  const lastName = nameSplit[1];
+
+  // if has middle name, join the rest of the name
+  const hasMiddleName = contact["Full Name*"].split(" ").length > 2;
+  const lastName = hasMiddleName ? nameSplit.slice(1).join("") : nameSplit[1];
+
   const fileName = `${firstInitial}${lastName}`;
   const lowerCaseFullName = fileName.toLowerCase();
   return lowerCaseFullName;
