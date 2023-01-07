@@ -2,7 +2,7 @@ import { getFileName, getFullNameFileName } from "./main";
 import { Contact } from "./types";
 
 const contactGenerator: () => Contact = () => ({
-  "Full Name*": "John Doe",
+  "Full Name*": "nothing",
   Credentials: "nothing",
   "Title*": "nothing",
   "Office Phone*": "nothing",
@@ -40,7 +40,7 @@ describe("getFileName", () => {
       "Full Name*": "John Doe",
     };
     const result = getFileName(contact);
-    expect(result).toBe("john_doe");
+    expect(result).toBe("jdoe");
   });
 
   it("should return file name with a middle name", () => {
@@ -49,6 +49,6 @@ describe("getFileName", () => {
       "Full Name*": "John Michael Doe",
     };
     const result = getFileName(contact);
-    expect(result).toBe("john_michael_doe");
+    expect(result).toBe("jmichaeldoe");
   });
 });
