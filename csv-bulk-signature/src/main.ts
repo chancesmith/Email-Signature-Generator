@@ -220,6 +220,9 @@ function skipFirstPlaceholderRow(contact: Contact) {
   return contact["Brand*"] !== "use dropdown to select a brand";
 }
 
+export function filterFilesForZip(file: string) {
+  return file.endsWith(".htm") || file.endsWith(".txt");
+}
 /*
  * MAIN
  */
@@ -255,9 +258,7 @@ async function main() {
 
   // 6. gather files for zip
   const signatureFolder = await fs.readdir(SIGNATURES_PATH);
-  const files = signatureFolder.filter(
-    (file) => file.endsWith(".htm") || file.endsWith(".txt")
-  );
+  const files = signatureFolder.filter(filterFilesForZip);
 
   // 7. zip up files
   await zipUpFiles(files);

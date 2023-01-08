@@ -1,4 +1,4 @@
-import { getFileName, getFullNameFileName } from "./main";
+import { filterFilesForZip, getFileName, getFullNameFileName } from "./main";
 import { Contact } from "./types";
 
 const contactGenerator: () => Contact = () => ({
@@ -51,4 +51,23 @@ describe("getFileName", () => {
     const result = getFileName(contact);
     expect(result).toBe("jmichaeldoe");
   });
+});
+
+describe("filterFilesForZip", () => {
+  const files = [
+    ".gitkeep",
+    "acurl.htm",
+    "anitti.htm",
+    "ndodge.htm",
+    "_statusReport.txt",
+  ];
+
+  const result = files.filter(filterFilesForZip);
+
+  expect(result).toStrictEqual([
+    "acurl.htm",
+    "anitti.htm",
+    "ndodge.htm",
+    "_statusReport.txt",
+  ]);
 });
