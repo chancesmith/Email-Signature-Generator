@@ -1,4 +1,9 @@
-import { filterFilesForZip, getFileName, getFullNameFileName } from "./main";
+import {
+  checkRequiredFields,
+  filterFilesForZip,
+  getFileName,
+  getFullNameFileName,
+} from "./main";
 import { Contact } from "./types";
 
 const contactGenerator: () => Contact = () => ({
@@ -70,4 +75,46 @@ describe("filterFilesForZip", () => {
     "ndodge.htm",
     "_statusReport.txt",
   ]);
+});
+
+describe("checkRequiredFields", () => {
+  it('should return "true" if all required fields are present', () => {
+    const result = checkRequiredFields(contactGenerator());
+
+    expect(result).toBe(true);
+  });
+
+  it('should return "false" if any required fields are missing', () => {
+    expect(
+      checkRequiredFields({
+        ...contactGenerator(),
+        // @ts-ignore - we're assuming Contact had missing data in runtime
+        "Brand*": undefined,
+      })
+    ).toBe(false);
+
+    expect(
+      checkRequiredFields({
+        ...contactGenerator(),
+        // @ts-ignore - we're assuming Contact had missing data in runtime
+        "Full Name*": undefined,
+      })
+    ).toBe(false);
+
+    expect(
+      checkRequiredFields({
+        ...contactGenerator(),
+        // @ts-ignore - we're assuming Contact had missing data in runtime
+        "Office Phone*": undefined,
+      })
+    ).toBe(false);
+
+    expect(
+      checkRequiredFields({
+        ...contactGenerator(),
+        // @ts-ignore - we're assuming Contact had missing data in runtime
+        "Title*": undefined,
+      })
+    ).toBe(false);
+  });
 });

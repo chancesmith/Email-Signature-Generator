@@ -223,6 +223,13 @@ function skipFirstPlaceholderRow(contact: Contact) {
 export function filterFilesForZip(file: string) {
   return file.endsWith(".htm") || file.endsWith(".txt");
 }
+
+export const checkRequiredFields = (row: Contact) =>
+  !!row["Brand*"]?.length &&
+  !!row["Full Name*"]?.length &&
+  !!row["Title*"]?.length &&
+  !!row["Office Phone*"]?.length;
+
 /*
  * MAIN
  */
@@ -238,12 +245,6 @@ async function main() {
   // 3. get contacts + filter
   const contacts = await getCSVRows(CSV_FILE);
   await checkHeadersToBeSame(contacts[0]);
-
-  const checkRequiredFields = (row: Contact) =>
-    !!row["Brand*"].length &&
-    !!row["Full Name*"].length &&
-    !!row["Title*"].length &&
-    !!row["Office Phone*"].length;
 
   const contactsWithNewProps = contacts
     .filter(skipFirstPlaceholderRow)
