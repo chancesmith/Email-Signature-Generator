@@ -39,7 +39,7 @@ describe("getFullNameFileName", () => {
 
 // test getFileName
 describe("getFileName", () => {
-  it("should return the correct file name", () => {
+  it("should return file name of first initial + last name", () => {
     const contact: Contact = {
       ...contactGenerator(),
       "Full Name*": "John Doe",
