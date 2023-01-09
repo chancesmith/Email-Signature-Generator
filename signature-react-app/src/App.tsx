@@ -1,8 +1,3 @@
-import React from "react";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
-import { Select, SelectChangeEvent } from "@mui/material";
 import {
   Box,
   Button,
@@ -13,11 +8,17 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import Logo from "./assets/Logo.png";
-import Signature from "./Signature";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
 import { CheckOutlined, FileCopyOutlined } from "@material-ui/icons";
-import CircularProgressWithLabel from "./CircularProgressWithLabel";
+import { Select, SelectChangeEvent } from "@mui/material";
+import React from "react";
 import "./App.css";
+import ReactDOMServer from "react-dom/server";
+import DownloadIcon from "@mui/icons-material/Download";
+import CircularProgressWithLabel from "./CircularProgressWithLabel";
+import Signature from "./Signature";
 
 const useStyles = makeStyles((theme: Theme) =>
   // Styles for the web app
@@ -39,8 +40,8 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "block",
       marginLeft: "auto",
       marginRight: "auto",
-      width: "374px",
-      height: "200px",
+      marginTop: "1rem",
+      width: "150px",
     },
     centeredText: {
       textAlign: "center",
@@ -103,6 +104,9 @@ function App() {
   const classes = useStyles();
   const [state, setState] = React.useState<State>(initialState);
 
+  const hasRequiredFields: boolean =
+    !!state.logo && !!state.fullName && !!state.title && !!state.phone;
+
   React.useEffect(() => {
     setState(initialState);
   }, []);
@@ -144,9 +148,17 @@ function App() {
           <br />
           <Button
             onClick={copyToClipboard}
+            disabled={!hasRequiredFields}
             endIcon={state.copied ? <CheckOutlined /> : <FileCopyOutlined />}
           >
             {state.copied ? "Copied" : "Copy to clipboard"}
+          </Button>
+          <Button
+            endIcon={<DownloadIcon />}
+            onClick={downloadHtmlFile}
+            disabled={!hasRequiredFields}
+          >
+            Download HTML File
           </Button>
         </React.Fragment>
       );
@@ -185,6 +197,32 @@ function App() {
     }
   };
 
+  const downloadHtmlFile = () => {
+    const htmlSignature = ReactDOMServer.renderToStaticMarkup(
+      <Signature
+        logo={state.logo}
+        fullName={state.fullName}
+        credentials={state.credentials}
+        title={state.title}
+        phone={state.phone}
+        mobile={state.mobile}
+        calendlyLink={state.calendlyLink}
+      />
+    );
+    const lowerCaseName = state.fullName.toLowerCase();
+    const nameSplit = lowerCaseName.split(" ");
+    const firstInitial = nameSplit[0].charAt(0);
+    const lastName = nameSplit[1];
+    const blob = new Blob([htmlSignature]);
+    const fileDownloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = fileDownloadUrl;
+    link.setAttribute("download", `${firstInitial}${lastName}.htm`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
+  };
+
   const isStateChanged = () => {
     return JSON.stringify(state) === JSON.stringify(initialState);
   };
@@ -195,7 +233,11 @@ function App() {
 
   return (
     <Container>
-      <img className={classes.centeredImage} src={Logo} alt={"logo"} />
+      <img
+        className={classes.centeredImage}
+        src={"https://temp-ata-signature-assets.s3.amazonaws.com/Logo.png"}
+        alt={"ata-logo"}
+      />
       <Typography variant="h2" gutterBottom className={classes.centeredText}>
         Signature generator
       </Typography>
@@ -228,7 +270,7 @@ function App() {
                       ATA Capital
                     </MenuItem>
                     <MenuItem value={LOGOS["ata-cpa-advisors"]}>
-                      ATA Cpa Advisors
+                      ATA CPA Advisors
                     </MenuItem>
                     <MenuItem value={LOGOS["ata-employment-solutions"]}>
                       ATA Employment Solutions
@@ -264,6 +306,7 @@ function App() {
                 fullWidth={true}
                 required
                 label="Telephone"
+                placeholder="777.444.5555"
                 value={state.phone}
                 name={"phone"}
                 onChange={handleChange}
@@ -271,13 +314,13 @@ function App() {
               <TextField
                 fullWidth={true}
                 label="Mobile Phone"
+                placeholder="777.444.5555"
                 value={state.mobile}
                 name={"mobile"}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth={true}
-                required
                 label="Calendly Link"
                 value={state.calendlyLink}
                 name={"calendlyLink"}
