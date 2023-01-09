@@ -148,12 +148,7 @@ export function getFileName(contact: Contact) {
   return lowerCaseFullName;
 }
 
-async function zipUpFile() {
-  const signatureFolder = await fs.readdir(SIGNATURES_PATH);
-  const files = signatureFolder.filter(
-    (file) => file.endsWith(".htm") || file.endsWith(".txt")
-  );
-
+export async function createZipFile(files: string[]) {
   const zip = new jszip();
 
   for await (const file of files) {
@@ -162,9 +157,12 @@ async function zipUpFile() {
     zip.file(file, fileContents);
   }
 
-  try {
-    const buffer = await zip.generateAsync({ type: "nodebuffer" });
+  return zip.generateAsync({ type: "nodebuffer" });
+}
 
+export async function zipUpFiles(files: string[]) {
+  try {
+    const buffer = await createZipFile(files);
     await fs.writeFile(ZIP_FILE, buffer);
 
     console.log("👍 Zip file created (signatures + report)");
@@ -222,6 +220,16 @@ function skipFirstPlaceholderRow(contact: Contact) {
   return contact["Brand*"] !== "use dropdown to select a brand";
 }
 
+export function filterFilesForZip(file: string) {
+  return file.endsWith(".htm") || file.endsWith(".txt");
+}
+
+export const checkRequiredFields = (row: Contact) =>
+  !!row["Brand*"]?.length &&
+  !!row["Full Name*"]?.length &&
+  !!row["Title*"]?.length &&
+  !!row["Office Phone*"]?.length;
+
 /*
  * MAIN
  */
@@ -238,12 +246,6 @@ async function main() {
   const contacts = await getCSVRows(CSV_FILE);
   await checkHeadersToBeSame(contacts[0]);
 
-  const checkRequiredFields = (row: Contact) =>
-    !!row["Brand*"].length &&
-    !!row["Full Name*"].length &&
-    !!row["Title*"].length &&
-    !!row["Office Phone*"].length;
-
   const contactsWithNewProps = contacts
     .filter(skipFirstPlaceholderRow)
     .map((contact) => ({ ...contact, skip: !checkRequiredFields(contact) }));
@@ -255,8 +257,12 @@ async function main() {
   // 5. create report
   await createStatusReport(contactsWithNewProps);
 
-  // 6. zip up files
-  await zipUpFile();
+  // 6. gather files for zip
+  const signatureFolder = await fs.readdir(SIGNATURES_PATH);
+  const files = signatureFolder.filter(filterFilesForZip);
+
+  // 7. zip up files
+  await zipUpFiles(files);
   await checkZipIsNotEmpty(ZIP_FILE);
 }
 
